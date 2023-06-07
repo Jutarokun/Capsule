@@ -1,0 +1,5 @@
+# Projektdokumentation RoomWave
+
+## Tag 1
+
+Heute war der Tag, an diesem wir entscheiden durften, welches Projekt wir machne. Ich habe mir am Anfang stark überlegt, was ich machen soll und wie ich es machen soll. Ich bin aber so auf keine Lösung gekommen, weil ich das beste Projekt machen wollte, welches ich kann. Ich habe mich dann entschieden eine Room basierte Chat App zu machen. Ich hatte aber ein Problem, ich wusste nicht wie ich das genau machen soll. Also habe ich mir mal ein paar Beispiele angeschaut und bin dann auf Socket.io gestossen. Also habe ich mich noch für die Backend Sprache Node JS entschieden und so ist mein Projekt entstanden. Ich habe danach noch ein bisschen umexperimentiert, wie ich alles machen soll, bis ich dann ca nach einer Stunde auf mein Konzept gestossen bin. Dann habe ich den Rest des Tages damit verbracht verschiedenste Dinge zu planen. Zum Beispiel habe ich UML Klassendiagramme erstellt und noch viele weitere Dinge. Jetzt bin ich hier und schreibe meine Dokumentation.
