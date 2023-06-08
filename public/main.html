@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create and Join Capsules</title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <h1>Create and Join Capsules</h1>
+  <div>
+    <label for="name">Name:</label>
+    <input type="text" id="name" />
+  </div>
+  <div>
+    <label for="description">Description:</label>
+    <input type="text" id="description" />
+  </div>
+  <button id="addCapsule">Add Capsule</button>
+
+  <script>
+    const button = document.getElementById('addCapsule');
+    const socket = io(); // Connect to the Socket.IO server
+
+    button.addEventListener('click', () => {
+      const name = document.getElementById('name').value;
+      const description = document.getElementById('description').value;
+
+      // Emit a "createCapsule" event
+      socket.emit('createCapsule', { name, description });
+    });
+
+    // Listen for a "capsuleCreated" event from the server
+    socket.on('capsuleCreated', (capsule) => {
+      // Handle the created capsule data
+      console.log('Capsule created:', capsule);
+    });
+
+    // Emit a "joinCapsule" event
+    const capsuleId = 'your-capsule-id'; // Replace with the actual capsule ID
+    socket.emit('joinCapsule', capsuleId);
+
+    // Listen for a "capsuleJoined" event from the server
+    socket.on('capsuleJoined', (capsule) => {
+      // Handle the joined capsule data
+      console.log('Capsule joined:', capsule);
+    });
+  </script>
+</body>
+</html>
