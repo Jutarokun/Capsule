@@ -18,6 +18,38 @@ app.use(cookieParser());
 // Serve static files (HTML, CSS, JavaScript) from a directory
 app.use(express.static('public'));
 
+// socket.io connection event handlers
+// Handle Socket.IO connections
+socket.on('connection', (socket) => {
+  console.log('A client connected');
+
+  // Handle "createCapsule" event from client
+  socket.on('createCapsule', (data) => {
+    const capsule = createCapsule(data.name, data.description);
+    // Send the created capsule to the client
+    socket.emit('capsuleCreated', capsule);
+    // Broadcast the created capsule to other clients
+    socket.broadcast.emit('capsuleCreated', capsule);
+  });
+
+  // Handle "joinCapsule" event from client
+  socket.on('joinCapsule', (capsuleId) => {
+    // Add the client to the list of clients for the specified capsule
+    addClientToCapsule(socket.id, capsuleId);
+    // Send the joined capsule to the client
+    socket.emit('capsuleJoined', getCapsule(capsuleId));
+    // Broadcast a "userJoined" event to other clients in the same capsule
+    socket.to(capsuleId).emit('userJoined', getClientList(capsuleId));
+  });
+
+  // Handle client disconnection
+  socket.on('disconnect', () => {
+    console.log('A client disconnected');
+  });
+
+  // ...
+});
+
 // Token authentication
 // Token authentication
 const authenticateToken = (req, res, next) => {
@@ -103,39 +135,7 @@ app.get('/login', (req, res) => {
   res.sendFile(__dirname + "/public/login.html");
 });
 
-// Handle Socket.IO connections
-socket.on('connection', (socket) => {
-  console.log('A client connected');
-
-  // Handle client disconnection
-  socket.on('disconnect', () => {
-    console.log('A client disconnected');
-  });
-
-  // Handle custom events
-  // ...
-});
-
 app.get('/logout', (req, res) => {
   res.clearCookie('token');
   res.redirect('/'); // Redirect to the desired page after clearing the cookie
 });
-
-  // Handle "createCapsule" event from client
-  socket.on('createCapsule', (data) => {
-    const capsule = createCapsule(data.name, data.description);
-    // Send the created capsule to the client
-    socket.emit('capsuleCreated', capsule);
-    // Broadcast the created capsule to other clients
-    socket.broadcast.emit('capsuleCreated', capsule);
-  });
-
-  // Handle "joinCapsule" event from client
-  socket.on('joinCapsule', (capsuleId) => {
-    // Add the client to the list of clients for the specified capsule
-    addClientToCapsule(socket.id, capsuleId);
-    // Send the joined capsule to the client
-    socket.emit('capsuleJoined', getCapsule(capsuleId));
-    // Broadcast a "userJoined" event to other clients in the same capsule
-    socket.to(capsuleId).emit('userJoined', getClientList(capsuleId));
-  });

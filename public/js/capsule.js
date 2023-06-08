@@ -1,5 +1,5 @@
 let button = document.getElementById('addCapsule');
-const socket = io(); // Connect to the Socket.IO server
+const socket = io('http://localhost:8080');
 
 button.addEventListener('click', () => {
 })

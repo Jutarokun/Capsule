@@ -127,10 +127,49 @@ function register_user(username, email, password, callback) {
     });
   }
 
+  async function getUserIdByName(name) {
+    return new Promise((resolve, reject) => {
+      const getQuery = `SELECT id FROM user where name = ?`;
+      const username = name;
+      db.get(getQuery, [username], (err, row) => {
+        if (err) {
+          reject(err.message);
+        } else if (row) {
+          resolve(row.id);
+        } else {
+          resolve(null);
+        }
+      })
+    })
+  }
+
+  async function createCapsule(name, description) {
+    return new Promise((resolve, reject) => {
+      const insertQuery = `INSERT INTO room (name, description) VALUES (?, ?)`;
+      const values = [name, description];
+      db.query(insertQuery, values, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  async function connectionUserCapsule(user, capsule) {
+    return new Promise((resolve, reject) => {
+      const insertQuery = `INSERT INTO user_room (user_id, room_id) VALUES ('?', '?')`;
+    })
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
   login_user,
   validateCredentials,
-  getUsernameByEmail
+  getUsernameByEmail,
+  createCapsule,
+  getUserIdByName,
+  connectionUserCapsule
 };
