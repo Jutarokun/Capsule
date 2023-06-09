@@ -3,46 +3,87 @@
 <head>
   <title>Create and Join Capsules</title>
   <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="home.css">
 </head>
 <body>
-  <h1>Create and Join Capsules</h1>
+  <header>
+    <nav class="navbar">
+      <ul class="navbar-menu">
+        <li class="navbar-item"><a href="/home">Home</a></li>
+        <li class="navbar-item"><a href="/search">search</a></li>
+      </ul>
+    </nav>
+    <h1>Create and Join Capsules</h1>
+  </header>
   <div>
     <label for="name">Name:</label>
     <input type="text" id="name" />
   </div>
-  <div>
+  <div><
     <label for="description">Description:</label>
     <input type="text" id="description" />
+    <i>Only enter this when you want to create a capsule</i>
   </div>
   <button id="addCapsule">Add Capsule</button>
-
+  <button id="joinCapsule">Join a capsule</button>
   <script>
-    const button = document.getElementById('addCapsule');
-    const socket = io(); // Connect to the Socket.IO server
+console.log('dom is loaded');
+let button = document.getElementById('addCapsule');
+const socket = io('http://localhost:8080');
+let buttonJoin = document.getElementById('joinCapsule');
 
-    button.addEventListener('click', () => {
-      const name = document.getElementById('name').value;
-      const description = document.getElementById('description').value;
+buttonJoin.addEventListener('click', () => {
+  let name = document.getElementById('name').value;
+  const cookieString = document.cookie;
 
-      // Emit a "createCapsule" event
-      socket.emit('createCapsule', { name, description });
-    });
+  // Extract the token from the cookie
+  const token = getTokenFromCookie(cookieString);
 
-    // Listen for a "capsuleCreated" event from the server
-    socket.on('capsuleCreated', (capsule) => {
-      // Handle the created capsule data
-      console.log('Capsule created:', capsule);
-    });
+  socket.emit('joinCapsule', { name, token });
+})
 
-    // Emit a "joinCapsule" event
-    const capsuleId = 'your-capsule-id'; // Replace with the actual capsule ID
-    socket.emit('joinCapsule', capsuleId);
 
-    // Listen for a "capsuleJoined" event from the server
-    socket.on('capsuleJoined', (capsule) => {
-      // Handle the joined capsule data
-      console.log('Capsule joined:', capsule);
-    });
+button.addEventListener('click', () => {
+  let name = document.getElementById('name').value;
+  let description = document.getElementById('description').value;
+  // Get the cookie string
+  const cookieString = document.cookie;
+
+  // Extract the token from the cookie
+  const token = getTokenFromCookie(cookieString);
+
+  // Emit a "createCapsule" event
+  socket.emit('createCapsule', { name, description, token });
+
+  // Listen for a "capsuleCreated" event from the server
+  socket.on('capsuleCreated', (capsule) => {
+    // Handle the created capsule data
+    console.log('Capsule created:', capsule);
+  });
+});
+
+socket.on('joinError', () => {
+  alert('There occured an error please try again');
+})
+
+socket.on('nameAlreadyExists', () => {
+  alert('Name already exists please enter another one');
+})
+
+socket.on('userRoomExists', () => {
+  alert('You already joined this room');
+})
+
+function getTokenFromCookie(cookieString) {
+  // Extract the token from the cookie string
+  const tokenRegex = /token=([^;]+)/;
+  const matches = cookieString.match(tokenRegex);
+  if (matches && matches.length > 1) {
+    return matches[1];
+  } else {
+    return null;
+  }
+}
   </script>
 </body>
 </html>

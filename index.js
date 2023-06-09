@@ -12,6 +12,7 @@ const key = 'b122656a9a73db37dc0af655d157d2631111d2e9154149fc5c365496408a5962';
 // set resources to express static
 app.use(express.static('public/css'));
 app.use('/assets', express.static('public/assets'));
+app.use(express.static('public/js'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -23,24 +24,63 @@ app.use(express.static('public'));
 socket.on('connection', (socket) => {
   console.log('A client connected');
 
-  // Handle "createCapsule" event from client
-  socket.on('createCapsule', (data) => {
-    const capsule = createCapsule(data.name, data.description);
-    // Send the created capsule to the client
-    socket.emit('capsuleCreated', capsule);
-    // Broadcast the created capsule to other clients
-    socket.broadcast.emit('capsuleCreated', capsule);
-  });
+// Handle "joinCapsule" event from client
+socket.on('joinCapsule', async (data) => {
+  const name = data.name;
+  const token = data.token;
+  const username = await getUsernameFromToken(token);
+  try {
+    const userId = await db.getUserIdByName(username);
+    capsuleID = await db.getCapsuleID(name);
+    try {
+      await db.connectionUserCapsule(userId, capsuleID);
+    } catch (error) {
+      if (error == 'User and room already exist') {
+        socket.emit('userRoomExists');
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+    socket.emit('joinError');
+  }
+})
 
-  // Handle "joinCapsule" event from client
-  socket.on('joinCapsule', (capsuleId) => {
-    // Add the client to the list of clients for the specified capsule
-    addClientToCapsule(socket.id, capsuleId);
-    // Send the joined capsule to the client
-    socket.emit('capsuleJoined', getCapsule(capsuleId));
-    // Broadcast a "userJoined" event to other clients in the same capsule
-    socket.to(capsuleId).emit('userJoined', getClientList(capsuleId));
-  });
+// Handle "createCapsule" event from client
+socket.on('createCapsule', async (data) => {
+  let id = '';
+  let capsuleID = '';
+  const token = data.token;
+  console.log('token backend: ' + token);
+  const username = await getUsernameFromToken(token);
+
+  try {
+    const userId = await db.getUserIdByName(username);
+    console.log(userId);
+    id = userId;
+
+    console.log('data name: ' + data.name);
+    console.log('data description: ' + data.description);
+    try {
+      capsuleID = await db.createCapsule(data.name, data.description);
+    } catch (error) {
+      if (error === 'Name already exists') {
+        console.log('name already exists');
+        socket.emit('nameAlreadyExists');
+      } else {
+        // Other errors
+        console.error(error);
+      }
+    }
+    const capsuleIDP = await db.getCapsuleID(data.name);
+    capsuleID = capsuleIDP;
+
+    console.log('CapsuleID after rework: ' + capsuleID);
+    await db.connectionUserCapsule(id, capsuleID);
+
+  } catch (error) {
+    console.error(error);
+  }
+});
 
   // Handle client disconnection
   socket.on('disconnect', () => {
@@ -50,7 +90,6 @@ socket.on('connection', (socket) => {
   // ...
 });
 
-// Token authentication
 // Token authentication
 const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
@@ -68,9 +107,22 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Getting the username out of the jwt
+function getUsernameFromToken(token) {
+  try {
+    const decodedToken = jwt.verify(token, key);
+    const username = decodedToken.username;
+    return username;
+  } catch (err) {
+    // Handle invalid token or other errors
+    console.error('Error decoding token:', err);
+    return null;
+  }
+}
+
 // Generate a JWT token
-const generateToken = (email) => {
-  const payload = { email };
+const generateToken = (username) => {
+  const payload = { username };
   const options = { expiresIn: '1h' }; // Token expiration time
 
   return jwt.sign(payload, key, options);
@@ -90,7 +142,7 @@ app.get('/', (req, res) => {
   if (token != null) {
     res.redirect('/home');
   }
-  res.sendFile(__dirname + "/public/registration.html");
+  res.sendFile(__dirname + "/public/login.html");
 });
 
 // Handle HTTP POST request to the "/registration" endpoint
@@ -101,7 +153,7 @@ app.post('/registration', async (req, res) => {
 
   db.register_user(username, email, password, (message) => {
     console.log('endresult: ' + message);
-    res.redirect('/login');
+    res.redirect('/');
   });
 });
 
@@ -131,11 +183,15 @@ app.get('/home', authenticateToken, (req, res) => {
 });
 
 // Handle HTTP GET request to the "/login" endpoint
-app.get('/login', (req, res) => {
-  res.sendFile(__dirname + "/public/login.html");
+app.get('/registration', (req, res) => {
+  res.sendFile(__dirname + "/public/registration.html");
 });
 
 app.get('/logout', (req, res) => {
   res.clearCookie('token');
   res.redirect('/'); // Redirect to the desired page after clearing the cookie
 });
+
+app.get('/search', (req, res) => {
+  res.sendFile(__dirname + '/public/search.html');
+})

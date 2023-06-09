@@ -129,7 +129,23 @@ function register_user(username, email, password, callback) {
 
   async function getUserIdByName(name) {
     return new Promise((resolve, reject) => {
-      const getQuery = `SELECT id FROM user where name = ?`;
+      const getQuery = `SELECT id FROM user where username = ?`;
+      const username = name;
+      db.get(getQuery, [username], (err, row) => {
+        if (err) {
+          reject(err.message);
+        } else if (row) {
+          resolve(row.id);
+        } else {
+          resolve(null);
+        }
+      })
+    })
+  }
+
+    async function getCapsuleID(name) {
+    return new Promise((resolve, reject) => {
+      const getQuery = `SELECT id FROM room where room_name = ?`;
       const username = name;
       db.get(getQuery, [username], (err, row) => {
         if (err) {
@@ -145,13 +161,24 @@ function register_user(username, email, password, callback) {
 
   async function createCapsule(name, description) {
     return new Promise((resolve, reject) => {
-      const insertQuery = `INSERT INTO room (name, description) VALUES (?, ?)`;
-      const values = [name, description];
-      db.query(insertQuery, values, (error, result) => {
-        if (error) {
-          reject(error);
+      const checkQuery = `SELECT id FROM room WHERE room_name = ?`;
+      const values = [name];
+      db.get(checkQuery, values, (err, row) => {
+        if (err) {
+          reject(err.message);
+        } else if (row) {
+          // Name already exists, reject with an error message
+          reject('Name already exists');
         } else {
-          resolve(result);
+          // Name doesn't exist, proceed with capsule creation
+          const insertQuery = `INSERT INTO room (room_name, room_description) VALUES (?, ?)`;
+          db.run(insertQuery, [name, description], function (error) {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(this.lastID);
+            }
+          });
         }
       });
     });
@@ -159,8 +186,28 @@ function register_user(username, email, password, callback) {
 
   async function connectionUserCapsule(user, capsule) {
     return new Promise((resolve, reject) => {
-      const insertQuery = `INSERT INTO user_room (user_id, room_id) VALUES ('?', '?')`;
-    })
+      // Check if the user and room already exist in the connection
+      const checkQuery = `SELECT * FROM user_room WHERE user_id = ? AND room_id = ?`;
+      const values = [user, capsule];
+      db.get(checkQuery, values, (error, row) => {
+        if (error) {
+          reject(error);
+        } else if (row) {
+          // User and room already exist in the connection
+          reject('User and room already exist');
+        } else {
+          // User and room don't exist, proceed with connection establishment
+          const insertQuery = `INSERT INTO user_room (user_id, room_id) VALUES (?, ?)`;
+          db.run(insertQuery, values, (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          });
+        }
+      });
+    });
   }
 
 // Exports the fucntions
@@ -171,5 +218,6 @@ module.exports = {
   getUsernameByEmail,
   createCapsule,
   getUserIdByName,
-  connectionUserCapsule
+  connectionUserCapsule,
+  getCapsuleID
 };
