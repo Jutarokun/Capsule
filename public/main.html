@@ -39,15 +39,6 @@ let button = document.getElementById('addCapsule');
 const socket = io(`http://${serverIP}:8080`);
 let buttonJoin = document.getElementById('joinCapsule');
 
-buttonJoin.addEventListener('click', () => {
-  let name = document.getElementById('name').value;
-  const cookieString = document.cookie;
-
-  // Extract the token from the cookie
-  const token = getTokenFromCookie(cookieString);
-
-  socket.emit('joinCapsule', { name, token });
-})
 
 
 button.addEventListener('click', () => {
@@ -69,28 +60,8 @@ button.addEventListener('click', () => {
   });
 });
 
-socket.on('joinError', () => {
-  alert('There occured an error please try again');
-})
-
 socket.on('nameAlreadyExists', () => {
   alert('Name already exists please enter another one');
-})
-
-socket.on('userRoomExists', () => {
-  alert('You already joined this room');
-})
-
-function getTokenFromCookie(cookieString) {
-  // Extract the token from the cookie string
-  const tokenRegex = /token=([^;]+)/;
-  const matches = cookieString.match(tokenRegex);
-  if (matches && matches.length > 1) {
-    return matches[1];
-  } else {
-    return null;
-  }
-}
-  </script>
+})  </script>
 </body>
 </html>

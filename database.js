@@ -210,6 +210,37 @@ function register_user(username, email, password, callback) {
     });
   }
 
+  async function getCapsulesByName(name) {
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM room WHERE room_name = ?';
+      const value = name;
+
+      db.get(query, value, (err, row) => {
+        if (err) {
+          reject(err.message);
+        } else if (row) {
+          console.log(row);
+          resolve(row);
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  async function getAll() {
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM room';
+      db.all(query, (err, rows) => {
+        if (err) {
+          reject(err.message);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -219,5 +250,7 @@ module.exports = {
   createCapsule,
   getUserIdByName,
   connectionUserCapsule,
-  getCapsuleID
+  getCapsuleID,
+  getCapsulesByName,
+  getAll
 };

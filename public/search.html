@@ -20,9 +20,11 @@
     <main>
         <label for="name">Please enter a name: </label>
         <input type="text" name="name" id="name">
-        <button class="animated-button" id="search">Search</button>
+        <button id="search">Search</button>
+        <button id="searchAll">Search All</button>
     </main>
     <script>
+        let serverIP = '';
         fetch('/ip')
         .then(response => response.text())
         .then(data => {
@@ -33,13 +35,137 @@
             console.error('Error:', error);
         });
         const searchButton = document.getElementById('search');
-        // for the connection to the server
+        const searchAllButton = document.getElementById('searchAll');
+        // For the connection to the server
         const socket = io(`http://${serverIP}:8080`);
-        searchButton.addEventListener('click', () => {
-            const searchValue = document.getElementById('name').value;
 
-            socket.emit('searchEvent', { searchValue });
+        searchAllButton.addEventListener('click', () => {
+            socket.emit('searchAll');
         })
+
+        socket.on('returnGetAll', (data) => {
+        const list = data.list;
+        console.log(list);
+
+        // Remove the existing search result container if it exists
+        const existingContainer = document.getElementById('searchResultsContainer');
+        if (existingContainer) {
+            existingContainer.remove();
+        }
+
+        // Create a new container for search results
+        const searchResultsContainer = document.createElement('div');
+        searchResultsContainer.id = 'searchResultsContainer';
+
+        list.forEach((capsule) => {
+            // Create container element for the search result
+            const container = document.createElement('div');
+            container.classList.add('server-container');
+
+            // Create title element
+            const title = document.createElement('h3');
+            title.textContent = capsule.room_name;
+
+            // Create description element
+            const description = document.createElement('p');
+            description.textContent = capsule.room_description;
+
+            // Create join button element
+            const joinButton = document.createElement('button');
+            joinButton.textContent = 'Join';
+            joinButton.addEventListener('click', () => {
+                joinButton.textContent = 'Join';
+                joinButton.addEventListener('click', () => {
+                let name = document.getElementById('name').value;
+                const cookieString = document.cookie;
+
+                // Extract the token from the cookie
+                const token = getTokenFromCookie(cookieString);
+
+                socket.emit('joinCapsule', { name, token });
+            });
+
+            // Append elements to the container
+            container.appendChild(title);
+            container.appendChild(description);
+            container.appendChild(joinButton);
+
+            // Append container to the search results container
+            searchResultsContainer.appendChild(container);
+        });
+
+        // Append the search results container to the document body or any desired parent element
+        document.body.appendChild(searchResultsContainer);
+        });
+    });
+
+        searchButton.addEventListener('click', () => {
+        const searchValue = document.getElementById('name').value;
+
+        socket.emit('searchEvent', { searchValue });
+        })
+        socket.on('returnSearchedCapsule', (data) => {
+        const capsule = data.capsule;
+        // Remove existing server containers
+        const serverContainers = document.querySelectorAll('.server-container');
+        serverContainers.forEach((container) => {
+            container.remove();
+        });
+
+        if (capsule != null) {
+            // Create container element
+            const container = document.createElement('div');
+            container.classList.add('server-container');
+
+            // Create title element
+            const title = document.createElement('h3');
+            title.textContent = capsule.room_name;
+
+            // Create description element
+            const description = document.createElement('p');
+            description.textContent = capsule.room_description;
+
+            // Create join button element
+            const joinButton = document.createElement('button');
+            joinButton.textContent = 'Join';
+            joinButton.addEventListener('click', () => {
+                let name = document.getElementById('name').value;
+                const cookieString = document.cookie;
+
+                // Extract the token from the cookie
+                const token = getTokenFromCookie(cookieString);
+
+                socket.emit('joinCapsule', { name, token });
+            });
+
+            // Append elements to the container
+            container.appendChild(title);
+            container.appendChild(description);
+            container.appendChild(joinButton);
+
+            // Append container to the document body or any desired parent element
+            document.body.appendChild(container);
+        } else {
+            alert('No server was found with this name');
+        }
+        });
+
+        function getTokenFromCookie(cookieString) {
+        // Extract the token from the cookie string
+        const tokenRegex = /token=([^;]+)/;
+        const matches = cookieString.match(tokenRegex);
+        if (matches && matches.length > 1) {
+            return matches[1];
+        } else {
+            return null;
+        }
+    }
+    socket.on('userRoomExists', () => {
+    alert('You already joined this room');
+    })
+    socket.on('joinError', () => {
+    alert('There occured an error please try again');
+    })
     </script>
 </body>
 </html>

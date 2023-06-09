@@ -45,6 +45,20 @@ socket.on('joinCapsule', async (data) => {
   }
 })
 
+socket.on('searchAll', async () => {
+  // Getting the all the Servers
+  const list = await db.getAll();
+  socket.emit('returnGetAll', { list });
+})
+
+// Reacting to the "searchEvent"
+socket.on('searchEvent', async (data) => {
+  const searchName = data.searchValue;
+  console.log(searchName);
+  const capsule = await db.getCapsulesByName(searchName);
+  socket.emit('returnSearchedCapsule', { capsule });
+})
+
 // Handle "createCapsule" event from client
 socket.on('createCapsule', async (data) => {
   let id = '';
@@ -120,6 +134,19 @@ function getUsernameFromToken(token) {
   }
 }
 
+// Function for verifying token
+function verifyToken(token) {
+  if (!token) {
+    return false;
+  }
+  jwt.verify(token, key, (err, user) => {
+    if (err) {
+      return false;
+    }
+    return true;
+  });
+}
+
 // Generate a JWT token
 const generateToken = (username) => {
   const payload = { username };
@@ -139,6 +166,10 @@ server.listen(port, () => {
 // Handle HTTP GET request for the root URL ("/")
 app.get('/', (req, res) => {
   let token = req.cookies.token;
+  const verfiy = verifyToken(token);
+  if (token) {
+    res.redirect('/home');
+  }
   res.sendFile(__dirname + "/public/login.html");
 });
 
@@ -184,7 +215,7 @@ app.get('/registration', (req, res) => {
   res.sendFile(__dirname + "/public/registration.html");
 });
 
-app.get('/logout', authenticateToken, (req, res) => {
+app.get('/logout', (req, res) => {
   res.clearCookie('token');
   res.redirect('/'); // Redirect to the desired page after clearing the cookie
 });
