@@ -22,6 +22,8 @@ input {
     border: none;
     border-radius: 5px;
     font-size: 1.2em;
+    margin: 0 10px;
+    margin-bottom: 4%;
     cursor: pointer;
     overflow: hidden;
     z-index: 1;
@@ -63,8 +65,8 @@ input {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     margin-bottom: 5%;
+    margin-top: 15%;
     flex-direction: column;
   }
   .form-group {
@@ -75,4 +77,27 @@ input {
   }
   h1 {
     text-align: center;
+  }
+  .box {
+    background-color: #3A9BDC;
+    border: 6px solid #5579C6;
+    border-radius: 10px;
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .centerTitle {
+    text-align: center;
+    font-family: 'Kanit', sans-serif;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
   }
