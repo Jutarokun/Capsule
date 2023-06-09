@@ -4,8 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>search</title>
+    <link rel="stylesheet" href="home.css">
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <h1>welcome to search</h1>
+    <header>
+        <nav class="navbar">
+            <ul class="navbar-menu">
+              <li class="navbar-item"><a href="/home">Home</a></li>
+              <li class="navbar-item"><a href="/search">search</a></li>
+            </ul>
+          </nav>
+          <h1>welcome to search</h1>
+    </header>
+    <main>
+        <label for="name">Please enter a name: </label>
+        <input type="text" name="name" id="name">
+        <button class="animated-button" id="search">Search</button>
+    </main>
+    <script>
+        fetch('/ip')
+        .then(response => response.text())
+        .then(data => {
+            const serverIP = data;
+            console.log(serverIP);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+        const searchButton = document.getElementById('search');
+        // for the connection to the server
+        const socket = io(`http://${serverIP}:8080`);
+        searchButton.addEventListener('click', () => {
+            const searchValue = document.getElementById('name').value;
+
+            socket.emit('searchEvent', { searchValue });
+        })
+    </script>
 </body>
 </html>

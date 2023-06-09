@@ -19,7 +19,7 @@
     <label for="name">Name:</label>
     <input type="text" id="name" />
   </div>
-  <div><
+  <div>
     <label for="description">Description:</label>
     <input type="text" id="description" />
     <i>Only enter this when you want to create a capsule</i>
@@ -27,9 +27,16 @@
   <button id="addCapsule">Add Capsule</button>
   <button id="joinCapsule">Join a capsule</button>
   <script>
+let serverIP = '';
 console.log('dom is loaded');
+fetch('/ip')
+.then(response => response.text())
+.then(data => {
+    const serverIP = data;
+    console.log(serverIP);
+})
 let button = document.getElementById('addCapsule');
-const socket = io('http://localhost:8080');
+const socket = io(`http://${serverIP}:8080`);
 let buttonJoin = document.getElementById('joinCapsule');
 
 buttonJoin.addEventListener('click', () => {

@@ -139,9 +139,6 @@ server.listen(port, () => {
 // Handle HTTP GET request for the root URL ("/")
 app.get('/', (req, res) => {
   let token = req.cookies.token;
-  if (token != null) {
-    res.redirect('/home');
-  }
   res.sendFile(__dirname + "/public/login.html");
 });
 
@@ -187,11 +184,17 @@ app.get('/registration', (req, res) => {
   res.sendFile(__dirname + "/public/registration.html");
 });
 
-app.get('/logout', (req, res) => {
+app.get('/logout', authenticateToken, (req, res) => {
   res.clearCookie('token');
   res.redirect('/'); // Redirect to the desired page after clearing the cookie
 });
 
-app.get('/search', (req, res) => {
+app.get('/search', authenticateToken, (req, res) => {
   res.sendFile(__dirname + '/public/search.html');
 })
+
+// Get the server's ip Address
+app.get('/ip', (req, res) => {
+  const ip = req.connection.remoteAddress;
+  res.send(ip);
+});
