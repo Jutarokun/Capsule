@@ -13,6 +13,7 @@
             <ul class="navbar-menu">
               <li class="navbar-item"><a href="/home">Home</a></li>
               <li class="navbar-item"><a href="/search">search</a></li>
+              <li class="navbar-item"><a href="/createCapsule">create Capsules</a></li>
             </ul>
           </nav>
           <h1>welcome to search</h1>
@@ -28,7 +29,7 @@
         fetch('/ip')
         .then(response => response.text())
         .then(data => {
-            const serverIP = data;
+            serverIP = data;
             console.log(serverIP);
         })
         .catch(error => {
@@ -52,6 +53,12 @@
         if (existingContainer) {
             existingContainer.remove();
         }
+        const existingServerContainer = document.querySelector('.server-container');
+        console.log('existing Container: ', existingServerContainer);
+        if (existingServerContainer) {
+            existingServerContainer.remove();
+        }
+
 
         // Create a new container for search results
         const searchResultsContainer = document.createElement('div');
@@ -73,17 +80,16 @@
             // Create join button element
             const joinButton = document.createElement('button');
             joinButton.textContent = 'Join';
-            joinButton.addEventListener('click', () => {
-                joinButton.textContent = 'Join';
-                joinButton.addEventListener('click', () => {
-                let name = document.getElementById('name').value;
-                const cookieString = document.cookie;
+            joinButton.addEventListener('click', (event) => {
+            const name = event.target.parentElement.querySelector('h3').textContent;
+            console.log('name: ' + name);
+            const cookieString = document.cookie;
 
-                // Extract the token from the cookie
-                const token = getTokenFromCookie(cookieString);
+            // Extract the token from the cookie
+            const token = getTokenFromCookie(cookieString);
 
-                socket.emit('joinCapsule', { name, token });
-            });
+            socket.emit('joinCapsule', { name, token });
+        });
 
             // Append elements to the container
             container.appendChild(title);
@@ -97,7 +103,6 @@
         // Append the search results container to the document body or any desired parent element
         document.body.appendChild(searchResultsContainer);
         });
-    });
 
         searchButton.addEventListener('click', () => {
         const searchValue = document.getElementById('name').value;
@@ -130,6 +135,7 @@
             joinButton.textContent = 'Join';
             joinButton.addEventListener('click', () => {
                 let name = document.getElementById('name').value;
+                console.log('naaaaaaaaaaaaaaaame: ' + name);
                 const cookieString = document.cookie;
 
                 // Extract the token from the cookie
@@ -164,7 +170,7 @@
     alert('You already joined this room');
     })
     socket.on('joinError', () => {
-    alert('There occured an error please try again');
+    alert('There occurred an error, please try again');
     })
     </script>
 </body>

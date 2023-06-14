@@ -144,6 +144,7 @@ function register_user(username, email, password, callback) {
   }
 
     async function getCapsuleID(name) {
+    const userID = await getUserIdByName(name);
     return new Promise((resolve, reject) => {
       const getQuery = `SELECT id FROM room where room_name = ?`;
       const username = name;
@@ -241,6 +242,21 @@ function register_user(username, email, password, callback) {
     });
   }
 
+  async function getRoomsByUsername(username) {
+    let userID = await getUserIdByName(username);
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM user_room INNER JOIN room ON user_room.room_id = room.id WHERE user_room.user_id = ?';
+      db.all(query, [userID], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          console.log(rows)
+          resolve(rows);
+        }
+      });
+    });
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -252,5 +268,6 @@ module.exports = {
   connectionUserCapsule,
   getCapsuleID,
   getCapsulesByName,
-  getAll
+  getAll,
+  getRoomsByUsername
 };

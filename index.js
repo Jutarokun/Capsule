@@ -45,6 +45,14 @@ socket.on('joinCapsule', async (data) => {
   }
 })
 
+socket.on('showAllCapsules', async (data) => {
+  const token = data.token;
+  const username = getUsernameFromToken(token);
+  const list = await db.getRoomsByUsername(username);
+  console.log('liiiiiiiiiiiiiiist: ' + list);
+  socket.emit('returnShowAllCapsules', { list });
+})
+
 socket.on('searchAll', async () => {
   // Getting the all the Servers
   const list = await db.getAll();
@@ -188,6 +196,7 @@ app.get('/', async (req, res) => {
   console.log('isValid: ' + isValid)
   if (token && isValid == true) {
     res.redirect('/home');
+    return;
   }
   res.sendFile(__dirname + "/public/login.html");
 });
@@ -248,3 +257,7 @@ app.get('/ip', (req, res) => {
   const ip = req.connection.remoteAddress;
   res.send(ip);
 });
+
+app.get('/createCapsule', authenticateToken, (req, res) => {
+  res.sendFile(__dirname + '/public/createCapsule.html');
+})

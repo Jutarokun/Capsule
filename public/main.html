@@ -9,59 +9,87 @@
   <header>
     <nav class="navbar">
       <ul class="navbar-menu">
-        <li class="navbar-item"><a href="/home">Home</a></li>
-        <li class="navbar-item"><a href="/search">search</a></li>
+        <li class="navbar-item" id="showCapsules"><a href="/home">Home</a></li>
+        <li class="navbar-item" id="search"><a href="/search">search</a></li>
+        <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
       </ul>
     </nav>
-    <h1>Create and Join Capsules</h1>
+    <h1>Here are your capsules</h1>
   </header>
-  <div>
-    <label for="name">Name:</label>
-    <input type="text" id="name" />
-  </div>
-  <div>
-    <label for="description">Description:</label>
-    <input type="text" id="description" />
-    <i>Only enter this when you want to create a capsule</i>
-  </div>
-  <button id="addCapsule">Add Capsule</button>
-  <button id="joinCapsule">Join a capsule</button>
+  <main>
+    <div id="capsulesContainer"></div>
+  </main>
   <script>
-let serverIP = '';
-console.log('dom is loaded');
-fetch('/ip')
-.then(response => response.text())
-.then(data => {
-    const serverIP = data;
-    console.log(serverIP);
-})
-let button = document.getElementById('addCapsule');
-const socket = io(`http://${serverIP}:8080`);
-let buttonJoin = document.getElementById('joinCapsule');
+    let serverIP = '';
+    fetch('/ip')
+      .then(response => response.text())
+      .then(data => {
+        serverIP = data;
+        console.log(serverIP);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
 
+    const socket = io(`http://${serverIP}:8080`);
 
+    document.addEventListener('DOMContentLoaded', () => {
+      const showCapsules = document.getElementById('showCapsules');
+      const capsulesContainer = document.getElementById('capsulesContainer');
+      const cookieString = document.cookie;
+      const token = getTokenFromCookie(cookieString);
+      socket.emit('showAllCapsules', { token });
 
-button.addEventListener('click', () => {
-  let name = document.getElementById('name').value;
-  let description = document.getElementById('description').value;
-  // Get the cookie string
-  const cookieString = document.cookie;
+      showCapsules.addEventListener('click', () => {
+        socket.emit('showAllCapsules', { token });
+      });
+    });
 
-  // Extract the token from the cookie
-  const token = getTokenFromCookie(cookieString);
+    socket.on('returnShowAllCapsules', (data) => {
+      const list = data.list;
+      console.log('user List: ', list);
 
-  // Emit a "createCapsule" event
-  socket.emit('createCapsule', { name, description, token });
+      const capsulesContainer = document.getElementById('capsulesContainer');
+      capsulesContainer.innerHTML = '';
 
-  // Listen for a "capsuleCreated" event from the server
-  socket.on('capsuleCreated', (capsule) => {
-    // Handle the created capsule data
-    console.log('Capsule created:', capsule);
-  });
-});
+      list.forEach(capsule => {
+        const capsuleBox = createCapsuleBox(capsule);
+        capsulesContainer.appendChild(capsuleBox);
+      });
+    });
 
-socket.on('nameAlreadyExists', () => {
-  alert('Name already exists please enter another one');
-})  </script>
+    function createCapsuleBox(capsule) {
+      const capsuleBox = document.createElement('div');
+      capsuleBox.classList.add('server-container');
+
+      const title = document.createElement('h3');
+      title.textContent = capsule.room_name;
+
+      const description = document.createElement('p');
+      description.textContent = capsule.room_description;
+
+      const chatButton = document.createElement('button');
+      chatButton.textContent = 'Chat';
+      chatButton.addEventListener('click', () => {
+        console.log('Chat button clicked for capsule:', capsule);
+      });
+
+      capsuleBox.appendChild(title);
+      capsuleBox.appendChild(description);
+      capsuleBox.appendChild(chatButton);
+
+      return capsuleBox;
+    }
+
+    function getTokenFromCookie(cookieString) {
+      const tokenRegex = /token=([^;]+)/;
+      const matches = cookieString.match(tokenRegex);
+      if (matches && matches.length > 1) {
+        return matches[1];
+      } else {
+        return null;
+      }
+    }
+  </script>
 </body>
 </html>
