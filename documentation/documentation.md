@@ -17,3 +17,43 @@ Heute war ein sehr aufregender und auch spannender Tag, denn ich habe mich endli
 ![1686322899286](image/documentation/1686322899286.png)
 
 Ansonsten habe ich auch ganz viele neue Datenbank Funktionen geschrieben, denn die Sockets können ja nicht von alleine in die Datenbank schreiben. Ich hatte heute zum Teil Probleme mit den Values der Datenbank, weil ich die Datenbank Funktionen nicht mit Await entgegengenommen habe, ich habe aber dann ganz schnell herausgefunden wieso und ich konnte gut weiterfahren. Im gesammten kann ich sagen, dass ich heute gut vorangekommen bin und der Tag an sich war sehr spannend und interessant.
+
+## Tag 4 / 14.06.2023
+
+Heute war es dann endlich spannend, denn ich habe mich darum gekümmert, dass man jetzt in den Rooms Chatten kann. Dazu habe ich noch ein paar Bugs behoben, wie z.B. das man redirected wird, wenn man sich versucht einen User zu erstellen und dann es schon jemand mit diesem Usernamen gibt. Ich habe mich auch darum gekümmert, dass einem verschiedenste Dinge auf dem UI angezeigt werden und so habe ich den Tag auch schon Erfolgreich abgeschlossen. Ich habe meine Ziele für den Heutigen Tag erreicht und ich kann aber sagen, dass ich das CSS unbedingt verbessern muss, denn es sieht bis jetzt nicht sehr schön aus und es kann noch einen guten CSS look verdienen. Ansonsten hatte ich heute keine grösseren Probleme, ich habe aber bemerkt, dass ich zwar die Rooms in der Datenbank create aber nicht mit Socket.io also konnte ich nicht wircklich reinschreiben, dass habe ich aber danach gefixxt und jetzt funktioniert alles. Ich habe auch einen neuen API Endpoint Hinzugefügt, damit man auf das Chat UI kommt. Hier ist noch ein Bild, wie mein Chat derzeit aussieht:
+
+![1686755311469](image/documentation/1686755311469.png)
+
+# Beschreibung der API Endpoints
+
+## /
+
+Hier kann man sich einloggen und man sieht einfach die Login Page.
+
+## /registration
+
+Hier kann man User registrieren.
+
+## /home
+
+Hier sieht man sein eigenes Home also sieht man hier alle seine Capsules, welche man ertellt hat.
+
+## /search
+
+Hier kann man verschiedenste Capsules suchen und diesen auch Joinen, damit man sie auf /home wieder sieht.
+
+## /createCapsule
+
+Hier kann man Capsules erstellen und dann können Leute auf diese Joinen, damit man mit ihnen Chatten kann.
+
+## /logout
+
+Hier kann man sich ausloggen, dann wird einfach der JWT, welcher in einem Cookie gespeichert wird gelöscht und man muss sich zuerst wieder einloggen, damit man etwas wieder machen kann.
+
+## /ip
+
+Hier bekommt man die Aktuelle Server IP, diese wird einfach verwendet, damit die IP nicht auf den Clients hard gecoded ist.
+
+# Inbetriebnahme
+
+Damit man das Programm in Betrieb nehmen kann braucht man eigentlich nur etwas und das ist der Code, welcher auf meinem Github bereitgestellt wird. Nachdem man den Code hat, kann man dann endlich starten und mit `<npm install>` Die Dependencies herunterladen, damit man den Server starten kann. Danach kann man mit `<nodemon index.js>` oder mit `<node index.js>` den Server starten. Dabei ist es wichtig zu wissen, dass der Port 8080 frei sein muss, ansonsten funktioniert es nicht. Nachdem man es gestartet hat, kann man als Host mit `<localhost:8080>` auf den Server zugreifen und wenn man ein Client ist, welcher sich auf den server Connecten will kann man mit `<http://server-ip:8080>`die Server IP kann man mit dem `<ip config>` command herausfinden und so kann man sich dann auch schon unterhalten. Dies geht aber nur im eigenen Subnetz und das Protokoll ist HTTP.
