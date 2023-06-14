@@ -104,6 +104,24 @@ socket.on('createCapsule', async (data) => {
   // ...
 });
 
+async function functionAuthenticateToken(token, key) {
+  if (token == null) {
+    return false;
+  } else {
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, key, (err) => {
+        if (err) {
+          console.log('error in function');
+          resolve(false);
+        } else {
+          console.log('the token should be valid but is somehow not');
+          resolve(true);
+        }
+      });
+    });
+  }
+}
+
 // Token authentication
 const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
@@ -164,10 +182,11 @@ server.listen(port, () => {
 });
 
 // Handle HTTP GET request for the root URL ("/")
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   let token = req.cookies.token;
-  const verfiy = verifyToken(token);
-  if (token) {
+  let isValid = await functionAuthenticateToken(token, key);
+  console.log('isValid: ' + isValid)
+  if (token && isValid == true) {
     res.redirect('/home');
   }
   res.sendFile(__dirname + "/public/login.html");
@@ -222,7 +241,7 @@ app.get('/logout', (req, res) => {
 
 app.get('/search', authenticateToken, (req, res) => {
   res.sendFile(__dirname + '/public/search.html');
-})
+});
 
 // Get the server's ip Address
 app.get('/ip', (req, res) => {
