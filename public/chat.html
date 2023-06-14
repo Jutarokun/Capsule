@@ -8,34 +8,58 @@
 <body>
   <header>
     <nav class="navbar">
-        <ul class="navbar-menu">
-          <li class="navbar-item" id="showCapsules"><a href="/home">Home</a></li>
-          <li class="navbar-item" id="search"><a href="/search">search</a></li>
-          <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
-        </ul>
-      </nav>
-      <h1>Welcome to the chat</h1>
-    </header>
-    <main>
-        <textarea name="message" id="message" cols="30" rows="10"></textarea>
-        <button id="sendMessage">Send message</button>
-    </main>
+      <ul class="navbar-menu">
+        <li class="navbar-item" id="showCapsules"><a href="/home">Home</a></li>
+        <li class="navbar-item" id="search"><a href="/search">search</a></li>
+        <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
+      </ul>
+    </nav>
+    <h1>Welcome to the chat</h1>
+  </header>
+  <main>
+    <textarea name="message" id="message" cols="30" rows="10"></textarea>
+    <button id="sendMessage">Send message</button>
+    <div id="messages"></div>
+  </main>
   <script>
     let serverIP = '';
     fetch('/ip')
-    .then(response => response.text())
-    .then(data => {
-        const serverIP = data;
+      .then(response => response.text())
+      .then(data => {
+        serverIP = data;
         console.log(serverIP);
-    })
+      })
+      .catch(error => {
+        console.error('Error fetching server IP:', error);
+      });
+
     const socket = io(`http://${serverIP}:8080`);
 
     const button = document.getElementById('sendMessage');
-    const message = document.getElementById('message').value;
-
     button.addEventListener('click', () => {
-        socket.emit('sendMessage', { message,  });
-    })
-</script>
+      const cookieString = document.cookie;
+      const token = getTokenFromCookie(cookieString);
+      const message = document.getElementById('message').value; // Move the message variable here
+      socket.emit('sendMessage', { message, token });
+    });
+
+    socket.on('message', (message) => {
+      console.log('Received message:', message);
+      const messagesContainer = document.getElementById('messages');
+      const messageElement = document.createElement('div');
+      messageElement.textContent = message;
+      messagesContainer.appendChild(messageElement);
+    });
+
+    function getTokenFromCookie(cookieString) {
+      const tokenRegex = /token=([^;]+)/;
+      const matches = cookieString.match(tokenRegex);
+      if (matches && matches.length > 1) {
+        return matches[1];
+      } else {
+        return null;
+      }
+    }
+  </script>
 </body>
 </html>
