@@ -1,127 +1,148 @@
 const express = require('express');
 const app = express();
-const server = require('http').createServer(app); // Create an HTTP server instance
-const socket = require('socket.io')(server); // Initialize Socket.IO with the server
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 const bodyParser = require("body-parser");
 const db = require('./database.js');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-// key for the jwt
 const key = 'b122656a9a73db37dc0af655d157d2631111d2e9154149fc5c365496408a5962';
 
-// set resources to express static
 app.use(express.static('public/css'));
 app.use('/assets', express.static('public/assets'));
 app.use(express.static('public/js'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Serve static files (HTML, CSS, JavaScript) from a directory
 app.use(express.static('public'));
 
-// socket.io connection event handlers
-// Handle Socket.IO connections
-socket.on('connection', (socket) => {
+io.on('connection', (socket) => {
   console.log('A client connected');
+  startChatRooms(socket);
 
-// Handle "joinCapsule" event from client
-socket.on('joinCapsule', async (data) => {
-  const name = data.name;
-  const token = data.token;
-  const username = await getUsernameFromToken(token);
-  try {
-    const userId = await db.getUserIdByName(username);
-    capsuleID = await db.getCapsuleID(name);
+  socket.on('joinCapsule', async (data) => {
+    const name = data.name;
+    const token = data.token;
+    const username = await getUsernameFromToken(token);
     try {
-      await db.connectionUserCapsule(userId, capsuleID);
-    } catch (error) {
-      if (error == 'User and room already exist') {
-        socket.emit('userRoomExists');
+      const userId = await db.getUserIdByName(username);
+      capsuleID = await db.getCapsuleID(name);
+      try {
+        await db.connectionUserCapsule(userId, capsuleID);
+      } catch (error) {
+        if (error == 'User and room already exist') {
+          socket.emit('userRoomExists');
+        }
       }
+    } catch (error) {
+      console.log(error.message);
+      socket.emit('joinError');
     }
-  } catch (error) {
-    console.log(error.message);
-    socket.emit('joinError');
-  }
-})
+  });
 
-socket.on('showAllCapsules', async (data) => {
-  const token = data.token;
-  const username = getUsernameFromToken(token);
-  const list = await db.getRoomsByUsername(username);
-  console.log('liiiiiiiiiiiiiiist: ' + list);
-  socket.emit('returnShowAllCapsules', { list });
-})
+  socket.on('showAllCapsules', async (data) => {
+    const token = data.token;
+    const username = getUsernameFromToken(token);
+    const list = await db.getRoomsByUsername(username);
+    console.log('list: ' + list);
+    socket.emit('returnShowAllCapsules', { list });
+  });
 
-socket.on('searchAll', async () => {
-  // Getting the all the Servers
-  const list = await db.getAll();
-  socket.emit('returnGetAll', { list });
-})
+  socket.on('searchAll', async () => {
+    const list = await db.getAll();
+    socket.emit('returnGetAll', { list });
+  });
 
-// Reacting to the "searchEvent"
-socket.on('searchEvent', async (data) => {
-  const searchName = data.searchValue;
-  console.log(searchName);
-  const capsule = await db.getCapsulesByName(searchName);
-  socket.emit('returnSearchedCapsule', { capsule });
-})
+  socket.on('sendMessage', async (data) => {
+    const message = data.message;
+    const token = data.token;
+    const username = getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
+    const room = await db.getRoomFromUser(userID);
+    console.log('username: ' + username + ' room: ' + room);
+    io.to(room).emit('message', message);
+  });
 
-socket.on('userCapsuleJoin', async (data) => {
-  const capsuleName = data.roomName;
-  const token = data.token;
-  const capsuleID = await db.getCapsuleID(capsuleName);
-  const username = getUsernameFromToken(token);
-  const userID = await db.getUserIdByName(username);
-  await db.insertIntoCurrentRoom(userID, capsuleID);
+  socket.on('searchEvent', async (data) => {
+    const searchName = data.searchValue;
+    console.log(searchName);
+    const capsule = await db.getCapsulesByName(searchName);
+    socket.emit('returnSearchedCapsule', { capsule });
+  });
 
-  socket.emit('returnUserCapsuleJoin');
-})
+  socket.on('userCapsuleJoin', async (data) => {
+    const capsuleName = data.roomName;
+    const token = data.token;
+    const capsuleID = await db.getCapsuleID(capsuleName);
+    const username = getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
+    await db.insertIntoCurrentRoom(userID, capsuleID);
 
-// Handle "createCapsule" event from client
-socket.on('createCapsule', async (data) => {
-  let id = '';
-  let capsuleID = '';
-  const token = data.token;
-  console.log('token backend: ' + token);
-  const username = await getUsernameFromToken(token);
+    socket.emit('returnUserCapsuleJoin');
+  });
 
-  try {
-    const userId = await db.getUserIdByName(username);
-    console.log(userId);
-    id = userId;
+  socket.on('createCapsule', async (data) => {
+    let id = '';
+    let capsuleID = '';
+    const token = data.token;
+    console.log('token backend: ' + token);
+    const username = await getUsernameFromToken(token);
 
-    console.log('data name: ' + data.name);
-    console.log('data description: ' + data.description);
     try {
-      capsuleID = await db.createCapsule(data.name, data.description);
-    } catch (error) {
-      if (error === 'Name already exists') {
-        console.log('name already exists');
-        socket.emit('nameAlreadyExists');
-      } else {
-        // Other errors
-        console.error(error);
+      const userId = await db.getUserIdByName(username);
+      console.log(userId);
+      id = userId;
+
+      console.log('data name: ' + data.name);
+      console.log('data description: ' + data.description);
+      try {
+        capsuleID = await db.createCapsule(data.name, data.description);
+      } catch (error) {
+        if (error === 'Name already exists') {
+          console.log('name already exists');
+          socket.emit('nameAlreadyExists');
+        } else {
+          console.error(error);
+        }
       }
+      const capsuleIDP = await db.getCapsuleID(data.name);
+      capsuleID = capsuleIDP;
+
+      console.log('CapsuleID after rework: ' + capsuleID);
+      await db.connectionUserCapsule(id, capsuleID);
+    } catch (error) {
+      console.error(error);
     }
-    const capsuleIDP = await db.getCapsuleID(data.name);
-    capsuleID = capsuleIDP;
+  });
 
-    console.log('CapsuleID after rework: ' + capsuleID);
-    await db.connectionUserCapsule(id, capsuleID);
-
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-  // Handle client disconnection
   socket.on('disconnect', () => {
     console.log('A client disconnected');
   });
-
-  // ...
 });
+
+async function startChatRooms(socket) {
+  try {
+    const rooms = await db.getAll();
+
+    rooms.forEach((room) => {
+      const roomName = room.room_name;
+      console.log(roomName);
+
+      socket.join(roomName, (err) => {
+        if (err) {
+          console.error('Error joining room:', err);
+        } else {
+          console.log(`Joined room: ${roomName}`);
+        }
+      });
+    });
+
+    console.log('All chat rooms started successfully');
+  } catch (error) {
+    console.error('Error starting chat rooms:', error);
+  }
+}
+
 
 async function functionAuthenticateToken(token, key) {
   if (token == null) {
@@ -141,37 +162,32 @@ async function functionAuthenticateToken(token, key) {
   }
 }
 
-// Token authentication
 const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
   if (token == null) {
-    res.sendStatus(401); // Unauthorized
+    res.sendStatus(401);
   }
 
   jwt.verify(token, key, (err, user) => {
     if (err) {
-      res.sendStatus(403); // Forbidden
+      res.sendStatus(403);
     }
-    // Token is valid, attach the user information to the request object
     req.user = user;
     next();
   });
 };
 
-// Getting the username out of the jwt
 function getUsernameFromToken(token) {
   try {
     const decodedToken = jwt.verify(token, key);
     const username = decodedToken.username;
     return username;
   } catch (err) {
-    // Handle invalid token or other errors
     console.error('Error decoding token:', err);
     return null;
   }
 }
 
-// Function for verifying token
 function verifyToken(token) {
   if (!token) {
     return false;
@@ -184,21 +200,18 @@ function verifyToken(token) {
   });
 }
 
-// Generate a JWT token
 const generateToken = (username) => {
   const payload = { username };
-  const options = { expiresIn: '1h' }; // Token expiration time
+  const options = { expiresIn: '1h' };
 
   return jwt.sign(payload, key, options);
 };
 
-
-
-// Start the server
-const port = 8080; // or any other desired port number
+const port = 8080;
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
 
 // Handle HTTP GET request for the root URL ("/")
 app.get('/', async (req, res) => {

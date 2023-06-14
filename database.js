@@ -257,6 +257,23 @@ function register_user(username, email, password, callback) {
     });
   }
 
+async function getRoomFromUser(userID) {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT room.room_name
+      FROM room_moment
+      JOIN room ON room_moment.room_id = room.id
+      WHERE room_moment.user_id = ?`;
+    db.get(query, [userID], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row.room_name);
+      }
+    });
+  });
+}
+
   async function insertIntoCurrentRoom(userID, capsuleID) {
     try {
       const query = `SELECT * FROM room_moment WHERE user_id = ?`;
@@ -303,5 +320,6 @@ module.exports = {
   getCapsulesByName,
   getAll,
   getRoomsByUsername,
-  insertIntoCurrentRoom
+  insertIntoCurrentRoom,
+  getRoomFromUser
 };
