@@ -67,6 +67,17 @@ socket.on('searchEvent', async (data) => {
   socket.emit('returnSearchedCapsule', { capsule });
 })
 
+socket.on('userCapsuleJoin', async (data) => {
+  const capsuleName = data.roomName;
+  const token = data.token;
+  const capsuleID = await db.getCapsuleID(capsuleName);
+  const username = getUsernameFromToken(token);
+  const userID = await db.getUserIdByName(username);
+  await db.insertIntoCurrentRoom(userID, capsuleID);
+
+  socket.emit('returnUserCapsuleJoin');
+})
+
 // Handle "createCapsule" event from client
 socket.on('createCapsule', async (data) => {
   let id = '';
@@ -260,4 +271,8 @@ app.get('/ip', (req, res) => {
 
 app.get('/createCapsule', authenticateToken, (req, res) => {
   res.sendFile(__dirname + '/public/createCapsule.html');
-})
+});
+
+app.get('/chat', authenticateToken , (req, res) => {
+  res.sendFile(__dirname + '/public/chat.html');
+});

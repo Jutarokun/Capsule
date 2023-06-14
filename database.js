@@ -257,6 +257,39 @@ function register_user(username, email, password, callback) {
     });
   }
 
+  async function insertIntoCurrentRoom(userID, capsuleID) {
+    try {
+      const query = `SELECT * FROM room_moment WHERE user_id = ?`;
+      db.get(query, [userID], (err, row) => {
+        if (err) {
+          console.error('Error checking database:', err);
+          return;
+        }
+        if (row) {
+          const updateQuery = `UPDATE room_moment SET room_id = ? WHERE user_id = ?`;
+          db.run(updateQuery, [capsuleID, userID], (err) => {
+            if (err) {
+              console.error('Error updating database:', err);
+            } else {
+              console.log('Record updated successfully');
+            }
+          });
+        } else {
+          const insertQuery = `INSERT INTO room_moment (user_id, room_id) VALUES (?, ?)`;
+          db.run(insertQuery, [userID, capsuleID], (err) => {
+            if (err) {
+              console.error('Error inserting into database:', err);
+            } else {
+              console.log('New record inserted successfully');
+            }
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error inserting/updating data:', error);
+    }
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -269,5 +302,6 @@ module.exports = {
   getCapsuleID,
   getCapsulesByName,
   getAll,
-  getRoomsByUsername
+  getRoomsByUsername,
+  insertIntoCurrentRoom
 };

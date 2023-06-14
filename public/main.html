@@ -72,6 +72,10 @@
       chatButton.textContent = 'Chat';
       chatButton.addEventListener('click', () => {
         console.log('Chat button clicked for capsule:', capsule);
+        const roomName = capsule.room_name;
+        const cookieString = document.cookie;
+        const token = getTokenFromCookie(cookieString);
+        socket.emit('userCapsuleJoin', { roomName, token })
       });
 
       capsuleBox.appendChild(title);
@@ -80,6 +84,10 @@
 
       return capsuleBox;
     }
+
+    socket.on('returnUserCapsuleJoin', () => {
+      window.location.href = '/chat';
+    })
 
     function getTokenFromCookie(cookieString) {
       const tokenRegex = /token=([^;]+)/;
