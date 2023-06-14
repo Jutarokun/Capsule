@@ -60,6 +60,8 @@ io.on('connection', (socket) => {
     const userID = await db.getUserIdByName(username);
     const room = await db.getRoomFromUser(userID);
     console.log('username: ' + username + ' room: ' + room);
+    const roomID = await db.getRoomIDFromUser(userID);
+    await db.insertIntoMessage(message, userID, roomID);
     io.to(room).emit('message', message);
   });
 
@@ -233,7 +235,11 @@ app.post('/registration', async (req, res) => {
 
   db.register_user(username, email, password, (message) => {
     console.log('endresult: ' + message);
-    res.redirect('/');
+    if (message == 'Successfully registered.') {
+      res.redirect('/');
+    } else {
+      res.send(message);
+    }
   });
 });
 

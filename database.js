@@ -307,6 +307,33 @@ async function getRoomFromUser(userID) {
     }
   }
 
+  async function insertIntoMessage(sentMessage, userID, roomID) {
+    return new Promise((resolve, reject) => {
+      const query = `INSERT INTO message (sent_message, user_id, room_id) VALUES (?, ?, ?)`;
+      const values = [sentMessage, userID, roomID];
+      db.run(query, values, (err, result) => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
+
+  async function getRoomIDFromUser(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT * FROM room_moment WHERE user_id = ?`;
+      db.get(query, [userID], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row.room_id);
+        }
+      });
+    });
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -321,5 +348,7 @@ module.exports = {
   getAll,
   getRoomsByUsername,
   insertIntoCurrentRoom,
-  getRoomFromUser
+  getRoomFromUser,
+  insertIntoMessage,
+  getRoomIDFromUser
 };
