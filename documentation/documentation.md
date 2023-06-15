@@ -24,6 +24,14 @@ Heute war es dann endlich spannend, denn ich habe mich darum gekümmert, dass ma
 
 ![1686755311469](image/documentation/1686755311469.png)
 
+## Tag 5 / 15.06.2023
+
+Heute habe ich eigentlich die meiste Zeit damit verbracht mein CSS aufzubessern, damit man die Webseite endlich mal anschauen kann. Dies hat sehr gut funktioniert, denn sie sieht jetzt relativ schön aus. Ich habe dabei auch gelernt, wie man CSS Button Animationen macht und ich muss sagen, dass dies sehr gut funktioniert und auch nicht allzu schwer ist. Ich hatte heute eigentlich keine grösseren Probleme ausser mit CSS, denn CSS macht meistens was es will und ich finde es nicht sehr interessant. Ansonsten lief der Tag sehr gut und ich würde sagen, dass ich auch produktiv war, denn ich habe sehr viel CSS geschrieben. Sonst war der Tag nicht allzu spannend. Ich habe aber auch noch bemerkt, dass ich noch ein paar Bugfixes machen musste, wie z.B. die Login Bugs oder das ein paar Benachrichtigungen nicht durch kamen oder ich sie schlichtweg vergessen habe. Hier sind noch ein Bilder	 von meinem neuen CSS:
+
+![1686840604941](image/documentation/1686840604941.png)
+
+![1686840648056](image/documentation/1686840648056.png)
+
 # Beschreibung der API Endpoints
 
 ## /
