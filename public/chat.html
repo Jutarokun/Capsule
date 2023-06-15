@@ -3,7 +3,7 @@
 <head>
   <title>Create and Join Capsules</title>
   <script src="/socket.io/socket.io.js"></script>
-  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="chat.css">
 </head>
 <body>
   <header>
@@ -14,12 +14,13 @@
         <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
       </ul>
     </nav>
-    <h1>Welcome to the chat</h1>
   </header>
   <main>
-    <textarea name="message" id="message" cols="30" rows="10"></textarea>
-    <button id="sendMessage">Send message</button>
-    <div id="messages"></div>
+    <div class="container">
+      <div class="message-container" id="messages"></div>
+      <textarea class="textbox" name="message" id="message" cols="60" rows="2" maxlength="1000" placeholder="enter a message ..."></textarea>
+      <button id="sendMessage" class="button-27">Send message</button>
+    </div>
   </main>
   <script>
     let serverIP = '';
@@ -37,17 +38,25 @@
 
     const button = document.getElementById('sendMessage');
     button.addEventListener('click', () => {
-      const cookieString = document.cookie;
-      const token = getTokenFromCookie(cookieString);
-      const message = document.getElementById('message').value; // Move the message variable here
-      socket.emit('sendMessage', { message, token });
-    });
+    const cookieString = document.cookie;
+    const token = getTokenFromCookie(cookieString);
+    const message = document.getElementById('message').value;
+    if (message.trim() === '') {
+      alert('Please enter a message.');
+      return;
+    }
+    document.getElementById('message').value = '';
+    socket.emit('sendMessage', { message, token });
+  });
 
-    socket.on('message', (message) => {
+
+    socket.on('message', (message, username) => {
       console.log('Received message:', message);
+      console.log('Received it from: ' + username)
       const messagesContainer = document.getElementById('messages');
       const messageElement = document.createElement('div');
-      messageElement.textContent = message;
+      messageElement.classList.add('message');
+      messageElement.textContent = username + ': ' + message;
       messagesContainer.appendChild(messageElement);
     });
 

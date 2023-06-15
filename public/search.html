@@ -21,8 +21,8 @@
     <main>
         <label for="name">Please enter a name: </label>
         <input type="text" name="name" id="name">
-        <button id="search">Search</button>
-        <button id="searchAll">Search All</button>
+        <button id="search" class="searchButton"><span>Search</span></button>
+        <button id="searchAll" class="searchButton"><span>Search All</span></button>
     </main>
     <script>
         let serverIP = '';
@@ -63,6 +63,7 @@
         // Create a new container for search results
         const searchResultsContainer = document.createElement('div');
         searchResultsContainer.id = 'searchResultsContainer';
+        searchResultsContainer.classList.add('container');
 
         list.forEach((capsule) => {
             // Create container element for the search result
@@ -166,6 +167,9 @@
             return null;
         }
     }
+    socket.on('returnJoinEvent', () => {
+        window.location.href = '/home';
+    })
     socket.on('userRoomExists', () => {
     alert('You already joined this room');
     })

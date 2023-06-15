@@ -1,3 +1,7 @@
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
 .navbar {
     background-color: #333;
     height: 60px;
@@ -37,17 +41,43 @@
     transition: all 0.2s ease-in-out;
   }
 
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
   .server-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    flex-grow: 1;
+    flex-basis: calc(30% - 2%);
+    margin: 10px;
     background-color: #f0f0f0;
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: inline-block;
-    width: 30%;
-    margin-right: 2%;
-    vertical-align: top;
     box-sizing: border-box;
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  .server-container:hover {
+    animation: lightingEffect 1s;
+  }
+
+  @keyframes lightingEffect {
+    0% {
+      box-shadow: 0 0 0 0 rgba(140, 190, 190, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 10px 10px rgba(0, 255, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(0, 255, 255, 0);
+    }
   }
 
   .server-container h3 {
@@ -61,7 +91,9 @@
   }
 
   .server-container button {
-    background-color: #2f3439;
+    align-self: flex-start;
+    margin-top: auto;
+    background-color: #303438;
     color: white;
     font-size: 16px;
     font-weight: bold;
@@ -71,5 +103,54 @@
   }
 
   .server-container button:hover {
-    background-color: #2f3236;
+    background-color: #5a5d61;
   }
+
+  .searchButton {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: box-shadow 0.3s ease;
+    color: #000000;
+    cursor: pointer;
+}
+
+.searchButton:hover {
+  background-color: #2f3236;
+}
+
+input {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: none;
+  transition: border-color 0.3s ease-in-out;
+}
+
+input:focus {
+  outline: none;
+  border-color: #272780;
+}
+
+.centered-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5%;
+  margin-top: 8%;
+  flex-direction: column;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.button-container {
+  margin-bottom: 10px;
+}

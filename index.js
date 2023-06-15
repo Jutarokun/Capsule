@@ -29,6 +29,7 @@ io.on('connection', (socket) => {
       capsuleID = await db.getCapsuleID(name);
       try {
         await db.connectionUserCapsule(userId, capsuleID);
+        socket.emit('returnJoinEvent');
       } catch (error) {
         if (error == 'User and room already exist') {
           socket.emit('userRoomExists');
@@ -62,7 +63,7 @@ io.on('connection', (socket) => {
     console.log('username: ' + username + ' room: ' + room);
     const roomID = await db.getRoomIDFromUser(userID);
     await db.insertIntoMessage(message, userID, roomID);
-    io.to(room).emit('message', message);
+    io.to(room).emit('message', message, username);
   });
 
   socket.on('searchEvent', async (data) => {
@@ -112,6 +113,7 @@ io.on('connection', (socket) => {
 
       console.log('CapsuleID after rework: ' + capsuleID);
       await db.connectionUserCapsule(id, capsuleID);
+      socket.emit('successCreateCapsule');
     } catch (error) {
       console.error(error);
     }

@@ -14,19 +14,20 @@
           <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
         </ul>
       </nav>
-    <h1>Create and Join Capsules</h1>
   </header>
-  <div>
-    <label for="name">Name:</label>
-    <input type="text" id="name" />
-  </div>
-  <div>
-    <label for="description">Description:</label>
-    <input type="text" id="description" />
-    <i>Only enter this when you want to create a capsule</i>
-  </div>
-  <button id="addCapsule">Add Capsule</button>
-  <button id="joinCapsule">Join a capsule</button>
+  <div class="centered-form">
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" maxlength="30"/>
+    </div>
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <input type="text" id="description" maxlength="300"/>
+    </div>
+    <div class="button-container">
+      <button id="addCapsule" class="searchButton">Add Capsule</button>
+    </div>
+</div>
   <script>
 let serverIP = '';
 console.log('dom is loaded');
@@ -63,6 +64,10 @@ button.addEventListener('click', () => {
 
 socket.on('nameAlreadyExists', () => {
   alert('Name already exists please enter another one');
+})
+
+socket.on('successCreateCapsule', () => {
+  alert('Capsule succesfully created enjoy your place!');
 })
         // Function for retrieving the Token from the Cookie String
         function getTokenFromCookie(cookieString) {
