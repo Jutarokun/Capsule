@@ -8,12 +8,13 @@
 <body>
   <header>
     <nav class="navbar">
-        <ul class="navbar-menu">
-          <li class="navbar-item" id="showCapsules"><a href="/home">Home</a></li>
-          <li class="navbar-item" id="search"><a href="/search">search</a></li>
-          <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
-        </ul>
-      </nav>
+      <ul class="navbar-menu">
+        <li class="navbar-item" id="showCapsules"><a href="/home">Home</a></li>
+        <li class="navbar-item" id="search"><a href="/search">search</a></li>
+        <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
+        <li class="navbar-item" id="changeCapsuleNav"><a href="/changeCapsule">change capsules</a></li>
+      </ul>
+    </nav>
   </header>
   <div class="centered-form">
     <div class="form-group">
@@ -46,6 +47,13 @@ let buttonJoin = document.getElementById('joinCapsule');
 button.addEventListener('click', () => {
   let name = document.getElementById('name').value;
   let description = document.getElementById('description').value;
+
+
+  if (name.trim() === '') {
+    console.log('Name field is empty');
+    return; // Return if the name field is empty
+  }
+
   // Get the cookie string
   const cookieString = document.cookie;
 

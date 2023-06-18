@@ -73,6 +73,21 @@ io.on('connection', (socket) => {
     socket.emit('returnSearchedCapsule', { capsule });
   });
 
+  socket.on('changeCapsule', async (data) => {
+    const {capsuleName, capsuleDescription, currentCapsuleName, currentCapsuleDescription} = data;
+    const returnalValue = await db.changeUserRoom(capsuleName, capsuleDescription, currentCapsuleName);
+    socket.emit('returnChangeCapsule', { returnalValue });
+  })
+
+  socket.on('showUserCapsules', async (data) => {
+
+    const token = data.token;
+    const username = await getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
+    const userRooms = await db.getUserRooms(userID);
+    socket.emit('returnUserCapsules', { userRooms });
+  })
+
   socket.on('userCapsuleJoin', async (data) => {
     const capsuleName = data.roomName;
     const token = data.token;
@@ -90,6 +105,7 @@ io.on('connection', (socket) => {
     const token = data.token;
     console.log('token backend: ' + token);
     const username = await getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
 
     try {
       const userId = await db.getUserIdByName(username);
@@ -99,7 +115,7 @@ io.on('connection', (socket) => {
       console.log('data name: ' + data.name);
       console.log('data description: ' + data.description);
       try {
-        capsuleID = await db.createCapsule(data.name, data.description);
+        capsuleID = await db.createCapsule(data.name, data.description, userID);
       } catch (error) {
         if (error === 'Name already exists') {
           console.log('name already exists');
@@ -297,3 +313,7 @@ app.get('/createCapsule', authenticateToken, (req, res) => {
 app.get('/chat', authenticateToken , (req, res) => {
   res.sendFile(__dirname + '/public/chat.html');
 });
+
+app.get('/changeCapsule', authenticateToken, (req, res) => {
+  res.sendFile(__dirname + '/public/changeRoom.html')
+})

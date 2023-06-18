@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create and Join Capsules</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <ul class="navbar-menu">
+        <li class="navbar-item" id="showCapsules"><a href="/home">Home</a></li>
+        <li class="navbar-item" id="search"><a href="/search">search</a></li>
+        <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
+        <li class="navbar-item" id="changeCapsuleNav"><a href="/changeCapsule">change capsules</a></li>
+      </ul>
+    </nav>
+    <h1>Change your Capsules here</h1>
+  </header>
+  <main>
+    <div id="capsulesContainer" class="container"></div>
+  </main>
+  <script>
+    let serverIP = '';
+    fetch('/ip')
+      .then(response => response.text())
+      .then(data => {
+        serverIP = data;
+        console.log(serverIP);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+
+    const socket = io(`http://${serverIP}:8080`);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const showCapsules = document.getElementById('showCapsules');
+      const capsulesContainer = document.getElementById('capsulesContainer');
+      const cookieString = document.cookie;
+      const token = getTokenFromCookie(cookieString);
+      socket.emit('showUserCapsules', { token });
+    });
+
+    socket.on('returnUserCapsules', (data) => {
+      const list = data.userRooms;
+      console.log(list);
+
+      const capsulesContainer = document.getElementById('capsulesContainer');
+      capsulesContainer.innerHTML = '';
+
+      list.forEach(capsule => {
+        const capsuleBox = createCapsuleBox(capsule);
+        capsulesContainer.appendChild(capsuleBox);
+      });
+    });
+
+    function createCapsuleBox(capsule) {
+      const capsuleBox = document.createElement('div');
+      capsuleBox.classList.add('server-container');
+
+      const title = document.createElement('h3');
+      title.textContent = capsule.room_name;
+
+      const description = document.createElement('p');
+      description.textContent = capsule.room_description;
+
+      const changeButton = document.createElement('button');
+      changeButton.textContent = 'Change Capsule';
+      changeButton.addEventListener('click', () => {
+        let deleteFormWrapper = document.querySelector('#form-wrapper');
+        if (deleteFormWrapper) {
+            deleteFormWrapper.remove();
+        }
+        console.log('Change button clicked for capsule:', capsule);
+
+        const formWrapper = document.createElement('div');
+        formWrapper.id = 'form-wrapper';
+
+        const labelName = document.createElement('label');
+        labelName.setAttribute('for', 'name');
+        labelName.textContent = 'Name:';
+
+        const inputName = document.createElement('input');
+        inputName.setAttribute('type', 'text');
+        inputName.setAttribute('id', 'name');
+        inputName.setAttribute('maxlength', '30');
+
+        const labelDescription = document.createElement('label');
+        labelDescription.setAttribute('for', 'description');
+        labelDescription.textContent = 'Description:';
+
+        const inputDescription = document.createElement('input');
+        inputDescription.setAttribute('type', 'text');
+        inputDescription.setAttribute('id', 'description');
+        inputDescription.setAttribute('maxlength', '300');
+
+        const buttonContainer = document.createElement("div");
+        buttonContainer.classList.add('change-button-container');
+
+        const closeButton = document.createElement("button");
+        const submitButton = document.createElement("button");
+
+        closeButton.textContent = 'Close';
+        submitButton.textContent = 'Submit';
+
+        closeButton.id = 'closeButton';
+        submitButton.id = 'submitButton';
+
+        closeButton.addEventListener("click", () => {
+            deleteFormWrapper = document.querySelector('#form-wrapper');
+            deleteFormWrapper.remove();
+        })
+
+        submitButton.addEventListener("click", () => {
+            const capsuleName = document.getElementById('name').value;
+            const capsuleDescription = document.getElementById('description').value;
+            console.log(capsuleName);
+            console.log(capsuleDescription);
+            const currentCapsuleName = capsule.room_name;
+            socket.emit('changeCapsule', {capsuleName, capsuleDescription, currentCapsuleName});
+            deleteFormWrapper = document.querySelector('#form-wrapper');
+            deleteFormWrapper.remove();
+        })
+
+        buttonContainer.appendChild(closeButton);
+        buttonContainer.appendChild(submitButton);
+
+        formWrapper.appendChild(labelName);
+        formWrapper.appendChild(inputName);
+        formWrapper.appendChild(labelDescription);
+        formWrapper.appendChild(inputDescription);
+        formWrapper.appendChild(buttonContainer);
+
+        capsuleBox.appendChild(formWrapper);
+    });
+
+
+
+      capsuleBox.appendChild(title);
+      capsuleBox.appendChild(description);
+      capsuleBox.appendChild(changeButton);
+
+      return capsuleBox;
+    }
+
+    socket.on('returnChangeCapsule', (data) => {
+      alert(data.returnalValue);
+      const token = getTokenFromCookie(document.cookie);
+      socket.emit('showUserCapsules', { token });
+    })
+
+    function getTokenFromCookie(cookieString) {
+      const tokenRegex = /token=([^;]+)/;
+      const matches = cookieString.match(tokenRegex);
+      if (matches && matches.length > 1) {
+        return matches[1];
+      } else {
+        return null;
+      }
+    }
+  </script>
+</body>
+</html>

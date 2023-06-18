@@ -160,7 +160,7 @@ function register_user(username, email, password, callback) {
     })
   }
 
-  async function createCapsule(name, description) {
+  async function createCapsule(name, description, userID) {
     return new Promise((resolve, reject) => {
       const checkQuery = `SELECT id FROM room WHERE room_name = ?`;
       const values = [name];
@@ -172,8 +172,8 @@ function register_user(username, email, password, callback) {
           reject('Name already exists');
         } else {
           // Name doesn't exist, proceed with capsule creation
-          const insertQuery = `INSERT INTO room (room_name, room_description) VALUES (?, ?)`;
-          db.run(insertQuery, [name, description], function (error) {
+          const insertQuery = `INSERT INTO room (room_name, room_description, user_id) VALUES (?, ?, ?)`;
+          db.run(insertQuery, [name, description, userID], function (error) {
             if (error) {
               reject(error);
             } else {
@@ -334,6 +334,67 @@ async function getRoomFromUser(userID) {
     });
   }
 
+  async function getUserRooms(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT * FROM room WHERE user_id = ?`;
+      db.all(query, [userID], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      })
+    })
+  }
+
+  async function changeUserRoom(room_name, room_description, current_capsule_name) {
+    return new Promise((resolve, reject) => {
+      const selectQuery = 'SELECT COUNT(*) AS count FROM room WHERE room_name = ?';
+      db.get(selectQuery, [room_name], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          if (row.count > 0) {
+            resolve('Name already exists');
+          } else {
+            if (!room_description) {
+              // Only room_name is provided, update room_name and keep the existing room_description
+              const updateQuery = 'UPDATE room SET room_name = ? WHERE room_name = ?';
+              db.run(updateQuery, [room_name, current_capsule_name], (err) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve('Updated room successfully');
+                }
+              });
+            } else if (!room_name) {
+              // Only room_description is provided, update room_description and keep the existing room_name
+              const updateQuery = 'UPDATE room SET room_description = ? WHERE room_name = ?';
+              db.run(updateQuery, [room_description, current_capsule_name], (err) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve('Updated room successfully');
+                }
+              });
+            } else {
+              // Both room_name and room_description are provided, update both fields
+              const updateQuery = 'UPDATE room SET room_name = ?, room_description = ? WHERE room_name = ?';
+              db.run(updateQuery, [room_name, room_description, current_capsule_name], (err) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve('Updated room successfully');
+                }
+              });
+            }
+          }
+        }
+      });
+    });
+  }
+
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -350,5 +411,7 @@ module.exports = {
   insertIntoCurrentRoom,
   getRoomFromUser,
   insertIntoMessage,
-  getRoomIDFromUser
+  getRoomIDFromUser,
+  getUserRooms,
+  changeUserRoom
 };

@@ -154,3 +154,22 @@ input:focus {
 .button-container {
   margin-bottom: 10px;
 }
+
+#form-wrapper {
+  margin-top: 4%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.change-button-container {
+  margin-top: 2%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#closeButton {
+  margin-right: 5px;
+}
