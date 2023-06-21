@@ -64,6 +64,7 @@
       messageElement.classList.add('message');
       messageElement.textContent = username + ': ' + message;
       messagesContainer.appendChild(messageElement);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
 
     socket.on('returnGetMessages', (data) => {
@@ -76,6 +77,8 @@
         messageElement.textContent = message.username + ': ' + message.sent_message;
         messagesContainer.appendChild(messageElement);
       });
+      const messagesContainer = document.getElementById('messages');
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     })
 
     function getTokenFromCookie(cookieString) {
