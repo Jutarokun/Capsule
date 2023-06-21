@@ -41,6 +41,28 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('getMessages', async (data) => {
+    try {
+      const token = data.token;
+      const username = await getUsernameFromToken(token);
+      console.log('Username: ' + username);
+      const userID = await db.getUserIdByName(username);
+      console.log('UserID: ' + userID);
+      const roomID = await db.getCurrentRoom(userID);
+      console.log('RoomID: ' + roomID);
+      const messages = await db.getAllMessages(roomID.room_id);
+      console.log('Messages: ' + messages);
+      for (const message of messages) {
+        const userId = message.user_id;
+        const username = await db.getUsernameByID(userId);
+        message.username = username.username;
+      }
+      socket.emit('returnGetMessages', { messages });
+    } catch (error) {
+      console.error('Error getting messages:', error);
+    }
+  });
+
   socket.on('showAllCapsules', async (data) => {
     const token = data.token;
     const username = getUsernameFromToken(token);

@@ -37,6 +37,11 @@
 
     const socket = io(`http://${serverIP}:8080`);
 
+    document.addEventListener("DOMContentLoaded", () => {
+      const token = getTokenFromCookie(document.cookie);
+      socket.emit('getMessages', { token });
+    })
+
     const button = document.getElementById('sendMessage');
     button.addEventListener('click', () => {
     const cookieString = document.cookie;
@@ -60,6 +65,18 @@
       messageElement.textContent = username + ': ' + message;
       messagesContainer.appendChild(messageElement);
     });
+
+    socket.on('returnGetMessages', (data) => {
+      const messages = data.messages;
+      console.log(messages);
+      messages.forEach(message => {
+        const messagesContainer = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.textContent = message.username + ': ' + message.sent_message;
+        messagesContainer.appendChild(messageElement);
+      });
+    })
 
     function getTokenFromCookie(cookieString) {
       const tokenRegex = /token=([^;]+)/;

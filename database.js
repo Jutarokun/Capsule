@@ -448,6 +448,45 @@ async function getRoomFromUser(userID) {
     });
   }
 
+  async function getAllMessages(roomID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT * FROM message WHERE room_id = ?`;
+      db.all(query, [roomID], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows)
+        }
+      })
+    })
+  }
+
+  async function getCurrentRoom(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT room_id FROM room_moment WHERE user_id = ?`;
+      db.get(query, [userID], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      });
+    })
+  }
+
+  async function getUsernameByID(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT username FROM user WHERE id = ?`;
+      db.get(query, [userID], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      })
+    })
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -468,5 +507,8 @@ module.exports = {
   getUserRooms,
   changeUserRoom,
   deleteUserCapsule,
-  getRoomsUserNotIn
+  getRoomsUserNotIn,
+  getAllMessages,
+  getCurrentRoom,
+  getUsernameByID
 };
