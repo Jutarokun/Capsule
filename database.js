@@ -356,7 +356,7 @@ async function getRoomFromUser(userID) {
           if (row.count > 0) {
             resolve('Name already exists');
           } else {
-            if (!room_description) {
+            if (!room_description && room_name) {
               // Only room_name is provided, update room_name and keep the existing room_description
               const updateQuery = 'UPDATE room SET room_name = ? WHERE room_name = ?';
               db.run(updateQuery, [room_name, current_capsule_name], (err) => {
@@ -366,7 +366,7 @@ async function getRoomFromUser(userID) {
                   resolve('Updated room successfully');
                 }
               });
-            } else if (!room_name) {
+            } else if (!room_name && room_description) {
               // Only room_description is provided, update room_description and keep the existing room_name
               const updateQuery = 'UPDATE room SET room_description = ? WHERE room_name = ?';
               db.run(updateQuery, [room_description, current_capsule_name], (err) => {
@@ -376,6 +376,8 @@ async function getRoomFromUser(userID) {
                   resolve('Updated room successfully');
                 }
               });
+            } else if (!room_name && !room_description) {
+              resolve('Left room as it is');
             } else {
               // Both room_name and room_description are provided, update both fields
               const updateQuery = 'UPDATE room SET room_name = ?, room_description = ? WHERE room_name = ?';
