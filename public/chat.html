@@ -51,8 +51,14 @@
       alert('Please enter a message.');
       return;
     }
+    const infiniteEnters = checkInfiniteEnters(message);
+    if (infiniteEnters) {
+      alert('please enter less enters');
+      return;
+    } else {
     document.getElementById('message').value = '';
     socket.emit('sendMessage', { message, token });
+    }
   });
 
 
@@ -98,7 +104,7 @@
 
     // cehcking if enters are too much
     function checkInfiniteEnters(message) {
-      const maxConsecutiveEnters = 2;
+      const maxConsecutiveEnters = 4;
       let count = 0;
       for (let i = 0; i < message.length; i++) {
         if (message[i] === '\n') {
