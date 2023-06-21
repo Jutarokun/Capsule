@@ -88,6 +88,15 @@ io.on('connection', (socket) => {
     socket.emit('returnUserCapsules', { userRooms });
   })
 
+  socket.on('deleteCapsule', async (data) => {
+    const capsuleName = data.capsuleName;
+    const capsuleID = await db.getCapsuleID(capsuleName);
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa' + capsuleID);
+    await db.deleteUserCapsule(capsuleID);
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+    socket.emit('deleteCapsuleCompleted');
+  })
+
   socket.on('userCapsuleJoin', async (data) => {
     const capsuleName = data.roomName;
     const token = data.token;

@@ -144,11 +144,10 @@ function register_user(username, email, password, callback) {
   }
 
     async function getCapsuleID(name) {
-    const userID = await getUserIdByName(name);
     return new Promise((resolve, reject) => {
       const getQuery = `SELECT id FROM room where room_name = ?`;
-      const username = name;
-      db.get(getQuery, [username], (err, row) => {
+      const room_name = name;
+      db.get(getQuery, [room_name], (err, row) => {
         if (err) {
           reject(err.message);
         } else if (row) {
@@ -394,6 +393,39 @@ async function getRoomFromUser(userID) {
     });
   }
 
+  async function deleteUserCapsule(capsuleID) {
+    return new Promise((resolve, reject) => {
+      const query_room_moment = `DELETE FROM room_moment WHERE room_id = ?;`;
+      const query_message = `DELETE FROM message WHERE room_id = ?;`;
+      const query_user_room = `DELETE FROM user_room WHERE room_id = ?;`;
+      const query_room = `DELETE FROM room WHERE id = ?;`;
+      db.run(query_room_moment, [capsuleID], function (error) {
+        if (error) {
+          reject(error);
+        } else {
+          db.run(query_message, [capsuleID], function (error) {
+            if (error) {
+              reject(error);
+            } else {
+              db.run(query_user_room, [capsuleID], function (error) {
+                if (error) {
+                  reject(error);
+                } else {
+                  db.run(query_room, [capsuleID], function (error) {
+                    if (error) {
+                      reject(error);
+                    } else {
+                      resolve();
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    });
+  }
 
 // Exports the fucntions
 module.exports = {
@@ -413,5 +445,6 @@ module.exports = {
   insertIntoMessage,
   getRoomIDFromUser,
   getUserRooms,
-  changeUserRoom
+  changeUserRoom,
+  deleteUserCapsule
 };
