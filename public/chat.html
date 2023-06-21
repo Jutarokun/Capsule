@@ -81,6 +81,38 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     })
 
+    document.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && event.key === 'Enter') {
+        const message = document.getElementById('message').value;
+        const messageBox = document.getElementById('message');
+        const cookieString = document.cookie;
+        const token = getTokenFromCookie(cookieString);
+        if (message.trim() === '') {
+          alert('Please enter a message.');
+          return;
+        }
+        socket.emit('sendMessage', { message, token });
+        messageBox.value = '';
+      }
+    })
+
+    // cehcking if enters are too much
+    function checkInfiniteEnters(message) {
+      const maxConsecutiveEnters = 2;
+      let count = 0;
+      for (let i = 0; i < message.length; i++) {
+        if (message[i] === '\n') {
+          count++;
+          if (count > maxConsecutiveEnters) {
+            return true;
+          }
+        } else {
+          count = 0;
+        }
+      }
+      return false;
+    }
+
     function getTokenFromCookie(cookieString) {
       const tokenRegex = /token=([^;]+)/;
       const matches = cookieString.match(tokenRegex);

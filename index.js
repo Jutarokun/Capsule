@@ -285,6 +285,11 @@ app.post('/registration', async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
+  if (username.length > 500 || email.length > 500 || password.length > 700) {
+    res.send('Your values are tooo high');
+    return;
+  }
+
   db.register_user(username, email, password, (message) => {
     console.log('endresult: ' + message);
     if (message == 'Successfully registered.') {
@@ -298,6 +303,11 @@ app.post('/registration', async (req, res) => {
 app.post('/login', async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
+
+  if (email.length > 500 || password.length > 700) {
+    res.send('Your values are tooo high');
+    return;
+  }
 
   // Validate the user credentials
   const isValid = await db.validateCredentials(email, password);
