@@ -75,7 +75,10 @@ socket.on('nameAlreadyExists', () => {
 })
 
 socket.on('successCreateCapsule', () => {
-  alert('Capsule succesfully created enjoy your place!');
+  const nameInput = document.getElementById('name');
+  const descriptionInput = document.getElementById('description');
+  nameInput.value = '';
+  descriptionInput.value = '';
 })
         // Function for retrieving the Token from the Cookie String
         function getTokenFromCookie(cookieString) {

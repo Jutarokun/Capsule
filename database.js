@@ -415,13 +415,34 @@ async function getRoomFromUser(userID) {
                     if (error) {
                       reject(error);
                     } else {
-                      resolve();
+                      resolve('Made it succesfully threw');
                     }
                   });
                 }
               });
             }
           });
+        }
+      });
+    });
+  }
+
+  function getRoomsUserNotIn(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT *
+        FROM room
+        WHERE id NOT IN (
+          SELECT room_id
+          FROM user_room
+          WHERE user_id = ?
+        )
+      `;
+      db.all(query, [userID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
         }
       });
     });
@@ -446,5 +467,6 @@ module.exports = {
   getRoomIDFromUser,
   getUserRooms,
   changeUserRoom,
-  deleteUserCapsule
+  deleteUserCapsule,
+  getRoomsUserNotIn
 };

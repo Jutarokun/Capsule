@@ -49,8 +49,11 @@ io.on('connection', (socket) => {
     socket.emit('returnShowAllCapsules', { list });
   });
 
-  socket.on('searchAll', async () => {
-    const list = await db.getAll();
+  socket.on('searchAll', async (data) => {
+    const token = data.token;
+    const username = await getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
+    const list = await db.getRoomsUserNotIn(userID);
     socket.emit('returnGetAll', { list });
   });
 

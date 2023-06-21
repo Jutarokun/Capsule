@@ -162,7 +162,6 @@
     }
 
     socket.on('returnChangeCapsule', (data) => {
-      alert(data.returnalValue);
       const token = getTokenFromCookie(document.cookie);
       socket.emit('showUserCapsules', { token });
     })

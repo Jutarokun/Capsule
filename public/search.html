@@ -42,7 +42,8 @@
         const socket = io(`http://${serverIP}:8080`);
 
         searchAllButton.addEventListener('click', () => {
-            socket.emit('searchAll');
+            const token = getTokenFromCookie(document.cookie);
+            socket.emit('searchAll', { token });
         })
 
         socket.on('returnGetAll', (data) => {
