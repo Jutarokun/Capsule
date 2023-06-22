@@ -56,6 +56,22 @@
 
       list.forEach(capsule => {
         const capsuleBox = createCapsuleBox(capsule);
+        const deleteIconContainer = document.createElement("div");
+        deleteIconContainer.classList.add("delete-icon");
+        deleteIconContainer.id = 'deleteIconContainer';
+
+        const deleteIcon = document.createElement("button");
+        deleteIcon.textContent = "X";
+        deleteIcon.id = 'delete-icon';
+        deleteIconContainer.appendChild(deleteIcon);
+        capsuleBox.appendChild(deleteIconContainer);
+
+        deleteIcon.addEventListener("click", () => {
+          const token = getTokenFromCookie(document.cookie);
+          const capsuleName = capsule.room_name;
+          console.log(capsuleName);
+          socket.emit('leaveCapsule', { capsuleName, token });
+        })
         capsulesContainer.appendChild(capsuleBox);
       });
     });
@@ -89,6 +105,11 @@
 
     socket.on('returnUserCapsuleJoin', () => {
       window.location.href = '/chat';
+    })
+
+    socket.on('returnLeaveCapsule', () => {
+      const token = getTokenFromCookie(document.cookie);
+      socket.emit('showAllCapsules', { token });
     })
 
     function getTokenFromCookie(cookieString) {

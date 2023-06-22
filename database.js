@@ -561,6 +561,19 @@ async function getRoomFromUser(userID) {
     });
   }
 
+  async function deleteUserFromCapsule(userID, roomID) {
+    return new Promise((resolve, reject) => {
+      const query = `DELETE FROM user_room WHERE user_id = ? AND room_id = ?`;
+      db.run(query, [userID, roomID], (err) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve('Succesfully deleted')
+        }
+      })
+    })
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -586,5 +599,6 @@ module.exports = {
   getCurrentRoom,
   getUsernameByID,
   changeUserCredentials,
-  getCapsuleByRoomDescription
+  getCapsuleByRoomDescription,
+  deleteUserFromCapsule
 };

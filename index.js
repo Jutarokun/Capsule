@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const key = process.env.API_KEY;
 
+
 app.use(express.static('public/css'));
 app.use('/assets', express.static('public/assets'));
 app.use(express.static('public/js'));
@@ -60,9 +61,18 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('leaveCapsule', async (data) => {
+    const { capsuleName, token } = data;
+    const username = await getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
+    const capsuleID = await db.getCapsuleID(capsuleName);
+    await db.deleteUserFromCapsule(userID, capsuleID);
+    socket.emit('returnLeaveCapsule');
+  })
+
   socket.on('showAllCapsules', async (data) => {
     const token = data.token;
-    const username = getUsernameFromToken(token);
+    const username = await getUsernameFromToken(token);
     const list = await db.getRoomsByUsername(username);
     console.log('list: ' + list);
     socket.emit('returnShowAllCapsules', { list });
@@ -79,7 +89,7 @@ io.on('connection', (socket) => {
   socket.on('sendMessage', async (data) => {
     const message = data.message;
     const token = data.token;
-    const username = getUsernameFromToken(token);
+    const username = await getUsernameFromToken(token);
     const userID = await db.getUserIdByName(username);
     const room = await db.getRoomFromUser(userID);
     console.log('username: ' + username + ' room: ' + room);
@@ -93,7 +103,7 @@ io.on('connection', (socket) => {
     const searchName = data.searchValue;
     const token = data.token;
     const dropdownValue = data.dropdownValue;
-    const username = getUsernameFromToken(token);
+    const username = await getUsernameFromToken(token);
     const userID = await db.getUserIdByName(username);
     console.log(searchName);
     if (dropdownValue === 'capsule_name') {
@@ -137,7 +147,7 @@ io.on('connection', (socket) => {
     const capsuleName = data.roomName;
     const token = data.token;
     const capsuleID = await db.getCapsuleID(capsuleName);
-    const username = getUsernameFromToken(token);
+    const username = await getUsernameFromToken(token);
     const userID = await db.getUserIdByName(username);
     await db.insertIntoCurrentRoom(userID, capsuleID);
 
@@ -235,7 +245,7 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, key, (err, user) => {
     if (err) {
-      res.sendStatus(403);
+      console.log(err.message);
     }
     req.user = user;
     next();
@@ -267,7 +277,7 @@ function verifyToken(token) {
 
 const generateToken = (username) => {
   const payload = { username };
-  const options = { expiresIn: '1h' };
+  const options = { expiresIn: '8h' };
 
   return jwt.sign(payload, key, options);
 };
@@ -282,7 +292,6 @@ server.listen(port, () => {
 app.get('/', async (req, res) => {
   let token = req.cookies.token;
   let isValid = await functionAuthenticateToken(token, key);
-  console.log('isValid: ' + isValid)
   if (token && isValid == true) {
     res.redirect('/home');
     return;
@@ -337,7 +346,7 @@ app.post('/login', async (req, res) => {
     res.cookie('token', token, { httpOnly: false });
     res.redirect('/home');
   } else {
-    res.sendStatus(401); // Unauthorized
+    res.sendStatus(401);
   }
   }
 });
