@@ -6,7 +6,8 @@ const bodyParser = require("body-parser");
 const db = require('./database.js');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const key = 'b122656a9a73db37dc0af655d157d2631111d2e9154149fc5c365496408a5962';
+require('dotenv').config();
+const key = process.env.API_KEY;
 
 app.use(express.static('public/css'));
 app.use('/assets', express.static('public/assets'));
@@ -45,13 +46,9 @@ io.on('connection', (socket) => {
     try {
       const token = data.token;
       const username = await getUsernameFromToken(token);
-      console.log('Username: ' + username);
       const userID = await db.getUserIdByName(username);
-      console.log('UserID: ' + userID);
       const roomID = await db.getCurrentRoom(userID);
-      console.log('RoomID: ' + roomID);
       const messages = await db.getAllMessages(roomID.room_id);
-      console.log('Messages: ' + messages);
       for (const message of messages) {
         const userId = message.user_id;
         const username = await db.getUsernameByID(userId);
