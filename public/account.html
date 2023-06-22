@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="account.css">
+    <title>account</title>
+</head>
+<body>
+<header>
+        <nav class="navbar">
+            <ul class="navbar-menu">
+              <li class="navbar-item" id="showCapsules"><a href="/home">Home</a></li>
+              <li class="navbar-item" id="search"><a href="/search">search</a></li>
+              <li class="navbar-item" id="createCapsule"><a href="/createCapsule">create Capsules</a></li>
+              <li class="navbar-item" id="changeCapsuleNav"><a href="/changeCapsule">change capsules</a></li>
+              <li class="navbar-item" id="account"><a href="/account">account</a></li>
+            </ul>
+        </nav>
+</header>
+    <main>
+        <form action="/account" method="post" class="centered-form">
+            <div class="form-group">
+              <label for="email">Enter your email:</label>
+              <input type="email" id="email" name="email" required maxlength="500">
+            </div>
+            <div class="form-group">
+              <label for="password">Enter your password:</label>
+              <input type="password" id="password" name="password" requiredn maxlength="500">
+            </div>
+            <button type="submit" class="searchButton">Change</button>
+          </form>
+          <div class="container">
+            <div class="button-container">
+              <a href="/logout"><button class="searchButton">Log out</button></a>
+            </div>
+          </div>
+    </main>
+</body>
+</html>

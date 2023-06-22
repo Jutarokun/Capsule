@@ -489,6 +489,50 @@ async function getRoomFromUser(userID) {
     })
   }
 
+  async function changeUserCredentials(email, password, username) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT count(*) AS count FROM user WHERE email = ?`;
+      db.get(query, [email], (err, row) => {
+        if (err) {
+          reject(err);
+        } else if (row.count > 1) {
+          reject('Email already exists');
+        } else {
+          if (email && !password) {
+            const query = `UPDATE user SET email = ? WHERE username = ?`;
+            db.run(query, [email, username], (err) => {
+              if (err) {
+                reject(err)
+              } else {
+                resolve('Updated email succesfully!')
+              }
+            })
+          } else if (!email && password) {
+            const hashedPassword = bcrypt.hashSync(password, saltRounds);
+            const query = `UPDATE user SET password = ? WHERE username = ?`;
+            db.run(query, [hashedPassword, username], (err) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve('Updated password succesfully!')
+              }
+            })
+          } else if (password && email) {
+            const hashedPassword = bcrypt.hashSync(password, saltRounds);
+            const query = `UPDATE user SET password = ?, email = ? WHERE username = ?`;
+            db.run(query, [hashedPassword, email, username], (err) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve('Updated user credentials Succesfully');
+              }
+            })
+          }
+        }
+      })
+    })
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -512,5 +556,6 @@ module.exports = {
   getRoomsUserNotIn,
   getAllMessages,
   getCurrentRoom,
-  getUsernameByID
+  getUsernameByID,
+  changeUserCredentials
 };

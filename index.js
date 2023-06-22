@@ -285,10 +285,11 @@ app.post('/registration', async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
-  if (username.length > 500 || email.length > 500 || password.length > 700) {
-    res.send('Your values are tooo high');
-    return;
-  }
+  if (username && email && password) {
+    if (username.length > 500 || email.length > 500 || password.length > 700) {
+      res.send('Your values are tooo high');
+      return;
+    }
 
   db.register_user(username, email, password, (message) => {
     console.log('endresult: ' + message);
@@ -298,11 +299,14 @@ app.post('/registration', async (req, res) => {
       res.send(message);
     }
   });
+  }
 });
 
 app.post('/login', async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
+
+  if (email && password) {
 
   if (email.length > 500 || password.length > 700) {
     res.send('Your values are tooo high');
@@ -323,6 +327,7 @@ app.post('/login', async (req, res) => {
     res.redirect('/home');
   } else {
     res.sendStatus(401); // Unauthorized
+  }
   }
 });
 
@@ -359,5 +364,18 @@ app.get('/chat', authenticateToken , (req, res) => {
 });
 
 app.get('/changeCapsule', authenticateToken, (req, res) => {
-  res.sendFile(__dirname + '/public/changeRoom.html')
-})
+  res.sendFile(__dirname + '/public/changeRoom.html');
+});
+
+app.get('/account', async (req, res) => {
+  res.sendFile(__dirname + '/public/account.html');
+});
+
+app.post('/account', async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const token = req.cookies.token;
+  const username = await getUsernameFromToken(token);
+  const message = await db.changeUserCredentials(email, password, username);
+  res.send(message);
+});
