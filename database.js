@@ -210,17 +210,22 @@ function register_user(username, email, password, callback) {
     });
   }
 
-  async function getCapsulesByName(name) {
+  async function getCapsulesByName(name, userID) {
     return new Promise((resolve, reject) => {
-      const query = 'SELECT * FROM room WHERE room_name = ?';
-      const value = name;
-
-      db.get(query, value, (err, row) => {
+      const query = `SELECT *
+                      FROM room
+                      WHERE room_name LIKE "%" || ? || "%"
+                      AND id NOT IN (
+                        SELECT room_id
+                        FROM user_room
+                        WHERE user_id = ?
+                      )`;
+      db.all(query, [name, userID], (err, rows) => {
         if (err) {
           reject(err.message);
-        } else if (row) {
-          console.log(row);
-          resolve(row);
+        } else if (rows.length > 0) {
+          console.log(rows);
+          resolve(rows);
         } else {
           resolve(null);
         }
@@ -533,6 +538,29 @@ async function getRoomFromUser(userID) {
     })
   }
 
+  async function getCapsuleByRoomDescription(room_description, userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT *
+                      FROM room
+                      WHERE room_description LIKE "%" || ? || "%"
+                      AND id NOT IN (
+                        SELECT room_id
+                        FROM user_room
+                        WHERE user_id = ?
+                      )`;
+      db.all(query, [room_description, userID], (err, rows) => {
+        if (err) {
+          reject(err.message);
+        } else if (rows.length > 0) {
+          console.log(rows);
+          resolve(rows);
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -557,5 +585,6 @@ module.exports = {
   getAllMessages,
   getCurrentRoom,
   getUsernameByID,
-  changeUserCredentials
+  changeUserCredentials,
+  getCapsuleByRoomDescription
 };

@@ -92,10 +92,24 @@ io.on('connection', (socket) => {
   });
 
   socket.on('searchEvent', async (data) => {
+    try {
     const searchName = data.searchValue;
+    const token = data.token;
+    const dropdownValue = data.dropdownValue;
+    const username = getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
     console.log(searchName);
-    const capsule = await db.getCapsulesByName(searchName);
-    socket.emit('returnSearchedCapsule', { capsule });
+    if (dropdownValue === 'capsule_name') {
+      const capsule = await db.getCapsulesByName(searchName, userID);
+      console.log('capsuuuuuuuuuuuuuule: ' + capsule);
+      socket.emit('returnSearchedCapsule', { capsule });
+    } else if (dropdownValue === 'capsule_description') {
+      const capsule = await db.getCapsuleByRoomDescription(searchName, userID)
+      socket.emit('returnSearchedCapsule', { capsule });
+    }
+    } catch(error) {
+      console.log(error);
+    }
   });
 
   socket.on('changeCapsule', async (data) => {
@@ -367,7 +381,7 @@ app.get('/changeCapsule', authenticateToken, (req, res) => {
   res.sendFile(__dirname + '/public/changeRoom.html');
 });
 
-app.get('/account', async (req, res) => {
+app.get('/account', authenticateToken ,async (req, res) => {
   res.sendFile(__dirname + '/public/account.html');
 });
 
