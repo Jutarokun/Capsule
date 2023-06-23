@@ -36,6 +36,18 @@ Heute habe ich daran gearbeitet, verschiedenste Quality of Life Updates gemacht,
 
 ![1687265301444](image/documentation/1687265301444.png)
 
+## Tag 7 / 21.06.2023
+
+Heute habe ich verschiedenste kleinere Dinge gemacht, welche ich mir schon länger vorgeschoben habe und so habe ich ein paar Quality of Life Dinge gemacht, wie z.B. dass einem wenn man Capsules sucht nur noch die Capsules angezeigt werden, welchen man noch nicht beigetreten ist. Ich habe auch implementiert, dass man Rooms löschen kann. Ich hatte heute eigentlich keine grösseren Probleme oder Dinge, welche mich grossartig aufgehalten haben. Es war ein durchaus angenehmer Tag und ich konnte die meisten Dinge schon, welche ich heute machen musste. Ich habe auch ein paar Bugs behoben z.B. den Bug, dass man einen Lehren Namen der Capsule geben konnte, wenn man diese geupdated hat. Dann habe ich noch automatisches Scrolling bei den Containern hinzugefügt. hier ist noch ein Bild von dem Geupdateten changeCapsule: ![1687440760994](image/documentation/1687440760994.png)
+
+## Tag 8 / 22.06.2023
+
+Heute habe ich auch wieder wie gestern verschiedenste Dinge gemacht und ein paar Dinge implementiert. Als erstes, habe ich es gemacht, dass man seine Email und sein Passwort ändern kann. Dann habe ich noch ein paar Zusätzliche Dinge gemacht, wie z.B. dass man jetzt auch als User Capsules verlassen kann. Ich habe mich dann auch noch darum gekümmert, dass wenn man eine bestimmte Capsule suchen wollte, dann musste man früher den korrekten Namen eingeben, damit man etwas als Ergebnis bekommt. Auch konnte man nur nach dem Room Namen suchen und nicht nach der Room Beschreibung und so habe ich ein paar Dinge gereworked. Ich habe es jetzt implementiert, dass man nach etwasem suchen kann und dann wird mit einem Like pattern entschieden, was dieses Wort beinhaltet. Auch kann man jetzt nach Room Beschreibungen suchen. Hier sind Bilder, wie das neue Home und das Searching jetzt aussieht:
+
+![1687441076026](image/documentation/1687441076026.png)
+
+![1687441085390](image/documentation/1687441085390.png)
+
 # Beschreibung der API Endpoints
 
 ## /
@@ -65,6 +77,14 @@ Hier kann man sich ausloggen, dann wird einfach der JWT, welcher in einem Cookie
 ## /ip
 
 Hier bekommt man die Aktuelle Server IP, diese wird einfach verwendet, damit die IP nicht auf den Clients hard gecoded ist.
+
+## /account
+
+Hier kann man seine Accountdaten mit einer Post request ändern und man bekommt, wenn man eine Get request macht, das HTML geliefert.
+
+## /changeCapsule
+
+Hier kriegt man wieder mit einer Get request, dass HTML geliefert.
 
 # Inbetriebnahme
 
