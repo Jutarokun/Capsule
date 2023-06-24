@@ -47,6 +47,14 @@
       });
     });
 
+    socket.on('connect', () => {
+      const token = getTokenFromCookie(document.cookie);
+      const socketID = socket.id;
+      console.log('sockeeeeeeeeetiiiid: ' + socketID);
+      socket.emit('sendSocketID', { token, socketID });
+  });
+
+
     socket.on('returnShowAllCapsules', (data) => {
       const list = data.list;
       console.log('user List: ', list);
@@ -109,6 +117,11 @@
     })
 
     socket.on('returnLeaveCapsule', () => {
+      const token = getTokenFromCookie(document.cookie);
+      socket.emit('showAllCapsules', { token });
+    })
+
+    socket.on('refreshPage', () => {
       const token = getTokenFromCookie(document.cookie);
       socket.emit('showAllCapsules', { token });
     })

@@ -43,6 +43,13 @@
       socket.emit('showUserCapsules', { token });
     });
 
+    socket.on('connect', () => {
+      const token = getTokenFromCookie(document.cookie);
+      const socketID = socket.id;
+      console.log('sockeeeeeeeeetiiiid: ' + socketID);
+      socket.emit('sendSocketID', { token, socketID });
+  });
+
     socket.on('returnUserCapsules', (data) => {
       const list = data.userRooms;
       console.log(list);
@@ -85,12 +92,20 @@
 
       const changeButton = document.createElement('button');
       changeButton.textContent = 'Change Capsule';
+
+      const banUserButton = document.createElement("button");
+        banUserButton.textContent = 'Ban User';
+
+        banUserButton.addEventListener("click", () => {
+          const capsuleName = capsule.room_name;
+          window.location.href = `/banUser?room=${encodeURIComponent(capsuleName)}`;
+        })
+
       changeButton.addEventListener('click', () => {
         let deleteFormWrapper = document.querySelector('#form-wrapper');
         if (deleteFormWrapper) {
             deleteFormWrapper.remove();
         }
-        console.log('Change button clicked for capsule:', capsule);
 
         const formWrapper = document.createElement('div');
         formWrapper.id = 'form-wrapper';
@@ -158,6 +173,7 @@
       capsuleBox.appendChild(title);
       capsuleBox.appendChild(description);
       capsuleBox.appendChild(changeButton);
+      capsuleBox.appendChild(banUserButton);
 
       return capsuleBox;
     }

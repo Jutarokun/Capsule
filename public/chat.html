@@ -43,6 +43,18 @@
       socket.emit('getMessages', { token });
     })
 
+    socket.on('connect', () => {
+      const token = getTokenFromCookie(document.cookie);
+      const socketID = socket.id;
+      console.log('sockeeeeeeeeetiiiid: ' + socketID);
+      socket.emit('sendSocketID', { token, socketID });
+  });
+
+  socket.on('refreshPage', () => {
+    window.location.href = '/home';
+    alert('You got banned from this server');
+  })
+
     const button = document.getElementById('sendMessage');
     button.addEventListener('click', () => {
     const cookieString = document.cookie;

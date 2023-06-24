@@ -46,6 +46,13 @@
         // For the connection to the server
         const socket = io(`http://${serverIP}:8080`);
 
+        socket.on('connect', () => {
+            const token = getTokenFromCookie(document.cookie);
+            const socketID = socket.id;
+            console.log('sockeeeeeeeeetiiiid: ' + socketID);
+            socket.emit('sendSocketID', { token, socketID });
+        });
+
         searchAllButton.addEventListener('click', () => {
             const token = getTokenFromCookie(document.cookie);
             socket.emit('searchAll', { token });

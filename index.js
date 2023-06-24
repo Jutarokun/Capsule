@@ -31,6 +31,7 @@ io.on('connection', (socket) => {
       capsuleID = await db.getCapsuleID(name);
       try {
         await db.connectionUserCapsule(userId, capsuleID);
+        io.sockets.emit('updateBanBoard');
         socket.emit('returnJoinEvent');
       } catch (error) {
         if (error == 'User and room already exist') {
@@ -61,6 +62,24 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('getUsersFromCapsule', async (data) => {
+    const capsuleName = data.roomName;
+    const token = data.token;
+    let banned_user;
+    const username = await getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
+    const capsuleID = await db.getCapsuleID(capsuleName);
+    const allowed = await db.validateUserRoom(userID, capsuleID);
+    if (allowed === false) {
+      const users = false;
+      socket.emit('returnGetUsersFromCapsule', { users, banned_user });
+    } else {
+      const banned_user = await db.getBannedUsers(capsuleID);
+      const users = await db.getUsersFromRoom(capsuleID, username);
+      socket.emit('returnGetUsersFromCapsule', { users, banned_user });
+    }
+  })
+
   socket.on('leaveCapsule', async (data) => {
     const { capsuleName, token } = data;
     const username = await getUsernameFromToken(token);
@@ -68,6 +87,18 @@ io.on('connection', (socket) => {
     const capsuleID = await db.getCapsuleID(capsuleName);
     await db.deleteUserFromCapsule(userID, capsuleID);
     socket.emit('returnLeaveCapsule');
+  })
+
+  socket.on('banUser', async (data) => {
+    const username = data.username;
+    const roomName = data.roomName;
+    const roomID = await db.getCapsuleID(roomName);
+    const userID = await db.getUserIdByName(username);
+    await db.deleteFromUserRoom(userID);
+    await db.banUser(userID, roomID);
+    const client_socket_id = await db.getSocketID(userID);
+    socket.broadcast.to(client_socket_id.socket_id).emit('refreshPage');
+    socket.emit('returnBanUser');
   })
 
   socket.on('showAllCapsules', async (data) => {
@@ -98,6 +129,15 @@ io.on('connection', (socket) => {
     io.to(room).emit('message', message, username);
   });
 
+  socket.on('unbanUser', async (data) => {
+    const username = data.username;
+    const roomName = data.roomName;
+    const userID = await db.getUserIdByName(username);
+    const roomID = await db.getCapsuleID(roomName);
+    await db.unbanUser(userID, roomID);
+    socket.emit('returnUnbanUser');
+  })
+
   socket.on('searchEvent', async (data) => {
     try {
     const searchName = data.searchValue;
@@ -118,6 +158,13 @@ io.on('connection', (socket) => {
       console.log(error);
     }
   });
+
+  socket.on('sendSocketID', async (data) => {
+    const { socketID, token } = data;
+    const username = await getUsernameFromToken(token);
+    const userID = await db.getUserIdByName(username);
+    await db.insertIntoUserSocketid(userID, socketID);
+  })
 
   socket.on('changeCapsule', async (data) => {
     const {capsuleName, capsuleDescription, currentCapsuleName, currentCapsuleDescription} = data;
@@ -246,6 +293,7 @@ const authenticateToken = (req, res, next) => {
   jwt.verify(token, key, (err, user) => {
     if (err) {
       console.log(err.message);
+      res.sendStatus(401);
     }
     req.user = user;
     next();
@@ -399,3 +447,7 @@ app.post('/account', async (req, res) => {
   const message = await db.changeUserCredentials(email, password, username);
   res.send(message);
 });
+
+app.get('/banUser', authenticateToken, (req, res) => {
+  res.sendFile(__dirname + '/public/banUser.html');
+})

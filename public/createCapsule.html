@@ -43,6 +43,13 @@ let button = document.getElementById('addCapsule');
 const socket = io(`http://${serverIP}:8080`);
 let buttonJoin = document.getElementById('joinCapsule');
 
+socket.on('connect', () => {
+      const token = getTokenFromCookie(document.cookie);
+      const socketID = socket.id;
+      console.log('sockeeeeeeeeetiiiid: ' + socketID);
+      socket.emit('sendSocketID', { token, socketID });
+  });
+
 
 
 button.addEventListener('click', () => {
@@ -81,6 +88,7 @@ socket.on('successCreateCapsule', () => {
   nameInput.value = '';
   descriptionInput.value = '';
 })
+
         // Function for retrieving the Token from the Cookie String
         function getTokenFromCookie(cookieString) {
         // Extract the token from the cookie string

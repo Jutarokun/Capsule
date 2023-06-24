@@ -219,8 +219,13 @@ function register_user(username, email, password, callback) {
                         SELECT room_id
                         FROM user_room
                         WHERE user_id = ?
+                      )
+                      AND id NOT IN (
+                        SELECT room_id
+                        FROM banned_user
+                        WHERE user_id = ?
                       )`;
-      db.all(query, [name, userID], (err, rows) => {
+      db.all(query, [name, userID, userID], (err, rows) => {
         if (err) {
           reject(err.message);
         } else if (rows.length > 0) {
@@ -406,6 +411,7 @@ async function getRoomFromUser(userID) {
       const query_message = `DELETE FROM message WHERE room_id = ?;`;
       const query_user_room = `DELETE FROM user_room WHERE room_id = ?;`;
       const query_room = `DELETE FROM room WHERE id = ?;`;
+      const query_banned_user = `DELETE FROM banned_user WHERE room_id = ?`;
       db.run(query_room_moment, [capsuleID], function (error) {
         if (error) {
           reject(error);
@@ -422,7 +428,13 @@ async function getRoomFromUser(userID) {
                     if (error) {
                       reject(error);
                     } else {
-                      resolve('Made it succesfully threw');
+                      db.run(query_banned_user, [capsuleID], function (error) {
+                        if (error) {
+                          reject(error)
+                        } else {
+                          resolve('Deleted Capsule Succesfull!');
+                        }
+                      })
                     }
                   });
                 }
@@ -437,15 +449,19 @@ async function getRoomFromUser(userID) {
   function getRoomsUserNotIn(userID) {
     return new Promise((resolve, reject) => {
       const query = `
-        SELECT *
-        FROM room
-        WHERE id NOT IN (
-          SELECT room_id
-          FROM user_room
-          WHERE user_id = ?
-        )
-      `;
-      db.all(query, [userID], (error, results) => {
+      SELECT *
+      FROM room
+      WHERE id NOT IN (
+        SELECT room_id
+        FROM banned_user
+        WHERE user_id = ?
+      )
+      AND id NOT IN (
+        SELECT room_id
+        FROM user_room
+        WHERE user_id = ?
+      )`;
+      db.all(query, [userID, userID], (error, results) => {
         if (error) {
           reject(error);
         } else {
@@ -547,6 +563,11 @@ async function getRoomFromUser(userID) {
                         SELECT room_id
                         FROM user_room
                         WHERE user_id = ?
+                      )
+                      AND id NOT IN (
+                        SELECT room_id
+                        FROM banned_user
+                        WHERE user_id = ?
                       )`;
       db.all(query, [room_description, userID], (err, rows) => {
         if (err) {
@@ -569,6 +590,143 @@ async function getRoomFromUser(userID) {
           reject(err)
         } else {
           resolve('Succesfully deleted')
+        }
+      })
+    })
+  }
+
+  async function getUsersFromRoom(roomID, currentUsername) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT user.username FROM user_room
+                     INNER JOIN user ON user_room.user_id = user.id
+                     WHERE user_room.room_id = ? AND NOT user.username = ?`;
+
+      db.all(query, [roomID, currentUsername], (error, row) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(row);
+        }
+      });
+    });
+  }
+
+  async function validateUserRoom(userID, roomID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT * FROM room WHERE id = ? AND user_id = ?`;
+      db.all(query, [roomID, userID], (err ,row) => {
+        if (err) {
+          reject(err)
+        } else if (row.length >= 1) {
+          resolve(row)
+        } else {
+          resolve(false);
+        }
+      })
+    })
+  }
+
+  async function getBannedUsers(roomID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT user.username FROM banned_user
+                     INNER JOIN user ON banned_user.user_id = user.id
+                     WHERE banned_user.room_id = ?`;
+      db.all(query, [roomID], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      })
+    })
+  }
+
+  async function banUser(userID, roomID) {
+    return new Promise((resolve, reject) => {
+      const query = `INSERT INTO banned_user (user_id, room_id) VALUES (?, ?)`;
+      const query_user_room = `DELETE FROM user_room WHERE user_id = ? AND room_id = ?`;
+      db.run(query_user_room, [userID, roomID], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          db.run(query, [userID, roomID], (err) => {
+            if (err) {
+              reject(err)
+            } else {
+              resolve('User is now banned');
+            }
+          })
+        }
+      })
+    })
+  }
+
+  async function unbanUser(userID, roomID) {
+    return new Promise((resolve, reject) => {
+      const query = `DELETE FROM banned_user WHERE user_id = ? AND room_id = ?`;
+      db.run(query, [userID, roomID], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve('Unbanned user!');
+        }
+      })
+    })
+  }
+
+  async function deleteFromUserRoom(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `DELETE FROM room_moment WHERE user_id = ?`;
+      db.run(query, [userID], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve('Deleted Succesfully!')
+        }
+      })
+    })
+  }
+
+  async function insertIntoUserSocketid(userID, socketID) {
+    return new Promise((resolve, reject) => {
+      const selectQuery = `SELECT * FROM user_socketid WHERE user_id = ?`;
+      db.all(selectQuery, [userID], (error, rows) => {
+        if (error) {
+          reject(error);
+        } else {
+          if (rows.length > 0) {
+            const updateQuery = `UPDATE user_socketid SET socket_id = ? WHERE user_id = ?`;
+            db.run(updateQuery, [socketID, userID], function (error) {
+              if (error) {
+                reject(error);
+              } else {
+                resolve('updated succesfully');
+              }
+            });
+          } else {
+            const insertQuery = `INSERT INTO user_socketid (user_id, socket_id)
+              VALUES (?, ?)`;
+            db.run(insertQuery, [userID, socketID], function (error) {
+              if (error) {
+                reject(error);
+              } else {
+                resolve('inserted succesfully');
+              }
+            });
+          }
+        }
+      });
+    });
+  }
+
+  async function getSocketID(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT socket_id FROM user_socketid WHERE user_id = ?`;
+      db.get(query, [userID], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
         }
       })
     })
@@ -600,5 +758,13 @@ module.exports = {
   getUsernameByID,
   changeUserCredentials,
   getCapsuleByRoomDescription,
-  deleteUserFromCapsule
+  deleteUserFromCapsule,
+  getUsersFromRoom,
+  validateUserRoom,
+  getBannedUsers,
+  banUser,
+  unbanUser,
+  deleteFromUserRoom,
+  insertIntoUserSocketid,
+  getSocketID
 };
