@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Ban users</title>
   <script src="/socket.io/socket.io.js"></script>
@@ -18,7 +18,10 @@
     </nav>
   </header>
   <main>
+    <p>Here you can <b>ban</b> users note that there might not be any records in here because <b>no person joined</b> this room</p>
+    <h3>Unbanned users</h3>
     <div id="userBox"></div>
+    <h3>Banned users</h3>
     <div id="bannedUserBox"></div>
   </main>
   <script>
@@ -49,71 +52,76 @@
       socket.emit('sendSocketID', { token, socketID });
   });
 
-    socket.on('returnGetUsersFromCapsule', (data) => {
-      console.log(data.users);
-      if (data.users === false) {
-        alert('You are not the owner of this Capsule!');
-      } else {
-        const userBox = document.getElementById('userBox');
-        const users = data.users;
-        const bannedUsers = data.banned_user;
-
-        const formWrapper = document.getElementById('formWrapper');
-        if (formWrapper) {
-            formWrapper.remove();
-        }
-
-        users.forEach(user => {
-          const formWrapper = document.createElement("div");
-          formWrapper.id = 'formWrapper';
-          const userName = document.createElement("p");
-          const banButton = document.createElement("button");
-          const userBoxDiv = document.createElement("div");
-          userBoxDiv.id = 'userBoxDiv';
-
-          banButton.id = 'banButton';
-          banButton.textContent = 'Ban';
-          banButton.addEventListener("click", () => {
-            const username = user.username;
-            console.log(username);
-            const params = new URLSearchParams(window.location.search);
-            const roomName = params.get('room');
-            socket.emit('banUser', { username, roomName });
-          });
-
-          userName.textContent = user.username;
-          userBoxDiv.appendChild(userName);
-          userBoxDiv.appendChild(banButton);
-          formWrapper.appendChild(userBoxDiv);
-          userBox.appendChild(formWrapper);
-        });
-
-        bannedUsers.forEach(user => {
-            const formWrapper = document.createElement("div");
-          formWrapper.id = 'formWrapper';
-          const userName = document.createElement("p");
-          const banButton = document.createElement("button");
-          const userBoxDiv = document.createElement("div");
-          userBoxDiv.id = 'userBoxDiv';
-
-          banButton.id = 'banButton';
-          banButton.textContent = 'unban';
-          banButton.addEventListener("click", () => {
-            const username = user.username;
-            console.log(username);
-            const params = new URLSearchParams(window.location.search);
-            const roomName = params.get('room');
-            socket.emit('unbanUser', { username, roomName });
-          });
-
-          userName.textContent = user.username;
-          userBoxDiv.appendChild(userName);
-          userBoxDiv.appendChild(banButton);
-          formWrapper.appendChild(userBoxDiv);
-          userBox.appendChild(formWrapper);
-        });
+  socket.on('returnGetUsersFromCapsule', (data) => {
+    console.log(data.users);
+    if (data.users === false) {
+      alert('You are not the owner of this Capsule!');
+    } else {
+      let userBox = document.getElementById('userBox');
+      userBox.innerHTML = ''; // Clear the container
+      const users = data.users;
+      const bannedUsers = data.banned_user;
+  
+      const formWrapper = document.getElementById('formWrapper');
+      if (formWrapper) {
+          formWrapper.remove();
       }
-    });
+      users.forEach(user => {
+        const formWrapper = document.createElement("div");
+        formWrapper.id = 'formWrapper';
+        const userName = document.createElement("p");
+        const banButton = document.createElement("button");
+        const userBoxDiv = document.createElement("div");
+        userBoxDiv.id = 'userBoxDiv';
+  
+        banButton.id = 'banButton';
+        banButton.classList.add('searchButton');
+        banButton.textContent = 'Ban';
+        banButton.addEventListener("click", () => {
+          const username = user.username;
+          console.log(username);
+          const params = new URLSearchParams(window.location.search);
+          const roomName = params.get('room');
+          socket.emit('banUser', { username, roomName });
+        });
+  
+        userName.textContent = 'user: ' + user.username;
+        userBoxDiv.appendChild(userName);
+        userBoxDiv.appendChild(banButton);
+        formWrapper.appendChild(userBoxDiv);
+        userBox.appendChild(formWrapper);
+      });
+      
+      userBox = document.getElementById('bannedUserBox');
+      userBox.innerHTML = ''; // Clear the container
+      bannedUsers.forEach(user => {
+          const formWrapper = document.createElement("div");
+        formWrapper.id = 'formWrapper';
+        const userName = document.createElement("p");
+        const banButton = document.createElement("button");
+        const userBoxDiv = document.createElement("div");
+        userBoxDiv.id = 'userBoxDiv';
+  
+        banButton.id = 'banButton';
+        banButton.classList.add('searchButton');
+        banButton.textContent = 'unban';
+        banButton.addEventListener("click", () => {
+          const username = user.username;
+          console.log(username);
+          const params = new URLSearchParams(window.location.search);
+          const roomName = params.get('room');
+          socket.emit('unbanUser', { username, roomName });
+        });
+  
+        userName.textContent = 'user: ' + user.username;
+        userBoxDiv.appendChild(userName);
+        userBoxDiv.appendChild(banButton);
+        formWrapper.appendChild(userBoxDiv);
+        userBox.appendChild(formWrapper);
+      });
+    }
+  });
+  
 
     socket.on('returnBanUser', () => {
         const params = new URLSearchParams(window.location.search);
