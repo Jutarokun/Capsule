@@ -20,7 +20,6 @@ app.use(express.static('public'));
 
 io.on('connection', (socket) => {
   console.log('A client connected');
-  startChatRooms(socket);
 
   socket.on('joinCapsule', async (data) => {
     const name = data.name;
@@ -56,6 +55,7 @@ io.on('connection', (socket) => {
         const username = await db.getUsernameByID(userId);
         message.username = username.username;
       }
+      console.log(messages);
       socket.emit('returnGetMessages', { messages });
     } catch (error) {
       console.error('Error getting messages:', error);
@@ -126,6 +126,7 @@ io.on('connection', (socket) => {
     console.log('username: ' + username + ' room: ' + room);
     const roomID = await db.getRoomIDFromUser(userID);
     await db.insertIntoMessage(message, userID, roomID);
+    console.log(socket.rooms);
     io.to(room).emit('message', message, username);
   });
 
@@ -201,6 +202,18 @@ io.on('connection', (socket) => {
     socket.emit('returnUserCapsuleJoin');
   });
 
+  socket.on('capsuleJoin', async (data) => {
+    const userName = await getUsernameFromToken(data.token);
+    const userID = await db.getUserIdByName(userName);
+    const capsuleID = await db.getUserRoomMoment(userID);
+    const capsuleName = await db.getCapsuleName(capsuleID);
+    console.log('username: ' + userName);
+    console.log('userID: ' + userID);
+    console.log('capsuleID: ' + capsuleID);
+    console.log('capsuleName: ' + capsuleName);
+    socket.join(capsuleName);
+  })
+
   socket.on('createCapsule', async (data) => {
     let id = '';
     let capsuleID = '';
@@ -241,29 +254,6 @@ io.on('connection', (socket) => {
     console.log('A client disconnected');
   });
 });
-
-async function startChatRooms(socket) {
-  try {
-    const rooms = await db.getAll();
-
-    rooms.forEach((room) => {
-      const roomName = room.room_name;
-      console.log(roomName);
-
-      socket.join(roomName, (err) => {
-        if (err) {
-          console.error('Error joining room:', err);
-        } else {
-          console.log(`Joined room: ${roomName}`);
-        }
-      });
-    });
-
-    console.log('All chat rooms started successfully');
-  } catch (error) {
-    console.error('Error starting chat rooms:', error);
-  }
-}
 
 
 async function functionAuthenticateToken(token, key) {

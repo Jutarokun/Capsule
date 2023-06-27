@@ -478,7 +478,7 @@ async function getRoomFromUser(userID) {
         if (err) {
           reject(err);
         } else {
-          resolve(rows)
+          resolve(rows);
         }
       })
     })
@@ -732,6 +732,32 @@ async function getRoomFromUser(userID) {
     })
   }
 
+  async function getUserRoomMoment(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT room_id FROM room_moment WHERE user_id = ?`;
+      db.get(query, [userID], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row.room_id);
+        }
+      })
+    })
+  }
+
+  async function getCapsuleName(room_id) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT room_name FROM room WHERE id = ?`;
+      db.get(query, [room_id], (err, row) => {
+        if (err) {
+          reject(err);
+        } else{
+          resolve(row.room_name);
+        }
+      })
+    })
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -766,5 +792,7 @@ module.exports = {
   unbanUser,
   deleteFromUserRoom,
   insertIntoUserSocketid,
-  getSocketID
+  getSocketID,
+  getUserRoomMoment,
+  getCapsuleName
 };
