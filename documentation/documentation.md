@@ -48,6 +48,12 @@ Heute habe ich auch wieder wie gestern verschiedenste Dinge gemacht und ein paar
 
 ![1687441085390](image/documentation/1687441085390.png)
 
+## Tag 9 / 23.06.2023
+
+Heute habe ich verschiedenste Dinge gemacht, wie z.B. Bug fixing aber ich habe heute noch das beste gemacht, was mir eingefallen ist. Denn ich habe es hingebracht, dass man nun Leute aus seinen Chat Rooms bannen kann und dann werden auch denen, welche gebannt wurden die Rooms nicht mehr angezeigt. Ansonsten habe ich heute nicht sehr viele Dinge gemacht, ich hatte zwar heute ein paar Probleme, weil wenn man jemanden bannt, dann muss man diese ja auch falls diese im Chat ist direkt aus diesem Hinauswerfen und so habe ich die verschiedensten Socket Events gemacht. Auch habe ich meine Datenbank erweitert, mit der SocketID, denn diese brauche ich um die verscheidensten einzelnen Clients zu erkennen und dann an diese spezielle Events schicken kann. Hier ist noch ein Foto, wie der Bannungs Bildschirm aussieht (derzeitig sieht es aber nicht so toll aus, weil es noch nicht ganz fertig ist):
+
+![1687875058293](image/documentation/1687875058293.png)
+
 # Beschreibung der API Endpoints
 
 ## /
@@ -85,6 +91,10 @@ Hier kann man seine Accountdaten mit einer Post request ändern und man bekommt,
 ## /changeCapsule
 
 Hier kriegt man wieder mit einer Get request, dass HTML geliefert.
+
+## /banUser
+
+Hier kriegt man ein HTML zurückgeliefert. Ab diesem Zeitpunkt läuft dann alles wieder über Socket connections.
 
 # Inbetriebnahme
 

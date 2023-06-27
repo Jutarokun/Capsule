@@ -51,9 +51,15 @@
       socket.emit('sendSocketID', { token, socketID });
   });
 
-  socket.on('refreshPage', () => {
-    window.location.href = '/home';
-    alert('You got banned from this server');
+  socket.on('refreshPage', (data) => {
+    console.log(data.roomName)
+    console.log(data.currentRoom);
+    if (data.roomName === data.currentRoomName) {
+      window.location.href = '/home';
+      alert(`You got banned from this server`);
+    } else {
+      alert(`You got banned from Server ${data.roomName}`);
+    }
   })
 
     const button = document.getElementById('sendMessage');

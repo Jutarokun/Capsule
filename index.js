@@ -94,10 +94,15 @@ io.on('connection', (socket) => {
     const roomName = data.roomName;
     const roomID = await db.getCapsuleID(roomName);
     const userID = await db.getUserIdByName(username);
-    await db.deleteFromUserRoom(userID);
+    const currentRoomID = await db.getUserRoomMoment(userID);
+    const currentRoomName = await db.getCapsuleName(currentRoomID);
+    console.log('currentRoomName: ' + currentRoomName);
+    if (currentRoomID === roomID) {
+      await db.deleteFromUserRoom(userID);
+    }
     await db.banUser(userID, roomID);
     const client_socket_id = await db.getSocketID(userID);
-    socket.broadcast.to(client_socket_id.socket_id).emit('refreshPage');
+    socket.broadcast.to(client_socket_id.socket_id).emit('refreshPage', { roomName, currentRoomName });
     socket.emit('returnBanUser');
   })
 
