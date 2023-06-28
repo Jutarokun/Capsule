@@ -439,8 +439,12 @@ app.post('/account', async (req, res) => {
   const password = req.body.password;
   const token = req.cookies.token;
   const username = await getUsernameFromToken(token);
-  const message = await db.changeUserCredentials(email, password, username);
-  res.send(message);
+  try {
+    const message = await db.changeUserCredentials(email, password, username);
+    res.send(message);
+  } catch (err) {
+    res.send('Email already exists');
+  }
 });
 
 app.get('/banUser', authenticateToken, (req, res) => {
