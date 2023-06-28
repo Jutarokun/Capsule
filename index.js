@@ -167,6 +167,10 @@ io.on('connection', (socket) => {
 
   socket.on('sendSocketID', async (data) => {
     const { socketID, token } = data;
+    let isValid = await functionAuthenticateToken(token, key);
+    if (token && isValid == false) {
+      return;
+    }
     const username = await getUsernameFromToken(token);
     const userID = await db.getUserIdByName(username);
     await db.insertIntoUserSocketid(userID, socketID);
@@ -192,7 +196,6 @@ io.on('connection', (socket) => {
     const capsuleID = await db.getCapsuleID(capsuleName);
     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa' + capsuleID);
     await db.deleteUserCapsule(capsuleID);
-    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     socket.emit('deleteCapsuleCompleted');
   })
 
@@ -271,7 +274,6 @@ async function functionAuthenticateToken(token, key) {
           console.log('error in function');
           resolve(false);
         } else {
-          console.log('the token should be valid but is somehow not');
           resolve(true);
         }
       });
