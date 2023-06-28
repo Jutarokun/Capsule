@@ -10,61 +10,64 @@ let db = new sqlite3.Database('./database/database.db', (err) => {
   console.log('Connected to the mydatabase database.');
 });
 
-function register_user(username, email, password, callback) {
-    // Querries for the database selection
-    let query = `SELECT username FROM user WHERE username = ?`;
-    let query2 = `SELECT email FROM user WHERE email = ?`;
-    let checkValue = username;
-    let checkValue2 = email;
-    let username_exists = false;
-    let email_exists = false;
+async function register_user(username, email, password, callback) {
+  try {
+    const usernameExists = await checkUsernameExists(username);
+    if (usernameExists) {
+      return callback('Username already taken.');
+    }
 
-    // Uses the querry to check in the database for records
-    db.get(query, [checkValue], (err, row) => {
-      if (err) {
-        console.error(err.message);
-        callback(err.message);
-      } else if (row) {
-        console.log(`${checkValue} is in the database.`);
-        username_exists = true;
-        callback('Username already taken.'); // Returns the messages with callback
-      } else {
-        console.log(`${checkValue} is not in the database.`);
-      }
-      if (!email_exists) {
-        db.get(query2, [checkValue2], (err, row) => {
-          if (err) {
-            console.error(err.message);
-            callback(err.message);
-          } else if (row) {
-            console.log(`${checkValue2} is in the database.`);
-            email_exists = true;
-            callback('Email already taken.');
-          } else {
-            console.log(`${checkValue2} is not in the database.`);
-          }
-          if (!username_exists && !email_exists) {
-            // Encrypts the password with the salt rounds
-            let hashedPassword = bcrypt.hashSync(password, saltRounds);
-            // Inserts the user into the database if no records of the values are found
-            db.run(
-              `INSERT INTO user (username, email, password) VALUES (?, ?, ?)`,
-              [username, email, hashedPassword],
-              (err) => {
-                if (err) {
-                  console.error(err.message);
-                  callback(err.message);
-                } else {
-                  console.log('Inserted into database');
-                  callback('Successfully registered.');
-                }
-              }
-            );
-          }
-        });
-      }
-    });
+    const emailExists = await checkEmailExists(email);
+    if (emailExists) {
+      return callback('Email already taken.');
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
+    await insertUser(username, email, hashedPassword);
+
+    return callback('Successfully registered.');
+  } catch (err) {
+    console.error(err.message);
+    return callback(err.message);
   }
+}
+
+function checkUsernameExists(username) {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT username FROM user WHERE username = ?`;
+    db.get(query, [username], (err, row) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(!!row);
+    });
+  });
+}
+
+function checkEmailExists(email) {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT email FROM user WHERE email = ?`;
+    db.get(query, [email], (err, row) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(!!row);
+    });
+  });
+}
+
+function insertUser(username, email, hashedPassword) {
+  return new Promise((resolve, reject) => {
+    const query = `INSERT INTO user (username, email, password) VALUES (?, ?, ?)`;
+    db.run(query, [username, email, hashedPassword], (err) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve();
+    });
+  });
+}
+
 
   function login_user(email, password, callback) {
     // Query for checking if the email exists
