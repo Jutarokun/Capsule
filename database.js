@@ -515,8 +515,8 @@ async function getRoomFromUser(userID) {
 
   async function changeUserCredentials(email, password, username) {
     return new Promise((resolve, reject) => {
-      const query = `SELECT count(*) AS count FROM user WHERE email = ?`;
-      db.get(query, [email], (err, row) => {
+      const query = `SELECT count(*) AS count FROM user WHERE email = ? AND NOT username = ?`;
+      db.get(query, [email, username], (err, row) => {
         if (err) {
           reject(err);
         } else if (row.count > 1) {

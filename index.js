@@ -440,6 +440,9 @@ app.post('/account', async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const token = req.cookies.token;
+  if (!email && !password) {
+    res.send('please Provide an email or password or both');
+  }
   const username = await getUsernameFromToken(token);
   try {
     const message = await db.changeUserCredentials(email, password, username);
