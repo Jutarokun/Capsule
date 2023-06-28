@@ -54,27 +54,31 @@ Heute habe ich verschiedenste Dinge gemacht, wie z.B. Bug fixing aber ich habe h
 
 ![1687875058293](image/documentation/1687875058293.png)
 
+## Tag 10 / 28.06.2023
+
+Heute habe ich ein paar Dinge gemacht. Ich habe aber im generellen weniger Programmiert. Ich habe hauptsächlich an meiner Dokumentation und meinem Testprotokoll gearbeitet. Als ich dann am Testen war, vielen mir ab und zu noch ein paar Bugs auf aber als ich diese gefixed habe lief mein Programm schon besser. Es ist nicht perfekt aber das muss es ja auch nicht sein. Ansonsten könnte man von aussen denken, dass der Tag relativ uninteressant war, weil ich ja hauptsächlich am schreiben und testen war aber ich fand ihn doch durchaus spannend. Denn dies ist schliesslich auch ein Teil unseres Berufes und darum fand ich ihn doch noch relativ spannend. Aber es gibt nicht sehr vieles zu erzählen, ausser das der Tag an sich okay war und er lief gut.
+
 # Beschreibung der API Endpoints
 
 ## /
 
-Hier kann man sich einloggen und man sieht einfach die Login Page.
+Hier bekommt man die Login Page mit einer GET request zurückgeliefert. Mit einer POST request kann man auch einen user einloggen.
 
 ## /registration
 
-Hier kann man User registrieren.
+Hier kriegt man die HTML Seite für die Registration mit einer GET Request zurückgeliefert und kann mit einer POST einen User registrieren.
 
 ## /home
 
-Hier sieht man sein eigenes Home also sieht man hier alle seine Capsules, welche man ertellt hat.
+Hier kriegt man den Home Client zurückgeliefert mit einer GET Request. Dieser Client besteht aus JS, HTML und CSS.
 
 ## /search
 
-Hier kann man verschiedenste Capsules suchen und diesen auch Joinen, damit man sie auf /home wieder sieht.
+Hier kriegt man den Search Client zurückgeliefert mit einer GET Request. Dieser Client besteht aus JS, HTML und CSS.
 
 ## /createCapsule
 
-Hier kann man Capsules erstellen und dann können Leute auf diese Joinen, damit man mit ihnen Chatten kann.
+Hier kriegt man den Search Client zurückgeliefert mit einer GET Request. Dieser Client besteht aus JS, HTML und CSS.
 
 ## /logout
 
