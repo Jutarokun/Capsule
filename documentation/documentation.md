@@ -94,11 +94,11 @@ Hier kann man seine Accountdaten mit einer Post request ändern und man bekommt,
 
 ## /changeCapsule
 
-Hier kriegt man wieder mit einer Get request, dass HTML geliefert.
+Hier kriegt man den change Capsule Client zurückgeliefert mit einer GET Request. Dieser Client besteht aus JS, HTML und CSS.
 
 ## /banUser
 
-Hier kriegt man ein HTML zurückgeliefert. Ab diesem Zeitpunkt läuft dann alles wieder über Socket connections.
+Hier kriegt man den ban user Client zurückgeliefert mit einer GET Request. Dieser Client besteht aus JS, HTML und CSS. 
 
 # Inbetriebnahme
 
