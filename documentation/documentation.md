@@ -98,11 +98,44 @@ Hier kriegt man den change Capsule Client zurückgeliefert mit einer GET Request
 
 ## /banUser
 
-Hier kriegt man den ban user Client zurückgeliefert mit einer GET Request. Dieser Client besteht aus JS, HTML und CSS. 
+Hier kriegt man den ban user Client zurückgeliefert mit einer GET Request. Dieser Client besteht aus JS, HTML und CSS.
 
 # Inbetriebnahme
 
-Damit man das Programm in Betrieb nehmen kann braucht man eigentlich nur etwas und das ist der Code, welcher auf meinem Github bereitgestellt wird. Nachdem man den Code hat, kann man dann endlich starten und mit `<npm install>` Die Dependencies herunterladen, damit man den Server starten kann. Danach kann man mit `<nodemon index.js>` oder mit `<node index.js>` den Server starten. Dabei ist es wichtig zu wissen, dass der Port 8080 frei sein muss, ansonsten funktioniert es nicht. Nachdem man es gestartet hat, kann man als Host mit `<localhost:8080>` auf den Server zugreifen und wenn man ein Client ist, welcher sich auf den server Connecten will kann man mit `<http://server-ip:8080>`die Server IP kann man mit dem `<ip config>` command herausfinden und so kann man sich dann auch schon unterhalten. Dies geht aber nur im eigenen Subnetz und das Protokoll ist HTTP.
+Damit man das Programm in Betrieb nehmen kann braucht man eigentlich nur etwas und das ist der Code, welcher auf meinem Github bereitgestellt wird, du kannst das Repository mit `<git clone https://github.com/Jutarokun/ChatWave.git>` klonen. Nachdem man den Code hat, kann man dann endlich starten und mit `<npm install>` Die Dependencies herunterladen, damit man den Server starten kann. Danach kann man mit `<nodemon index.js>` oder mit `<node index.js>` den Server starten. Dabei ist es wichtig zu wissen, dass der Port 8080 frei sein muss, ansonsten funktioniert es nicht. Nachdem man es gestartet hat, kann man als Host mit `<localhost:8080>` auf den Server zugreifen und wenn man ein Client ist, welcher sich auf den server Connecten will kann man mit `<http://server-ip:8080>`die Server IP kann man mit dem `<ipconfig>` command herausfinden und so kann man sich dann auch schon unterhalten. Dies geht aber nur im eigenen Subnetz und das Protokoll ist HTTP.
+
+## Step by step guide
+
+1. Klone das Repository.
+
+   `git clone https://github.com/Jutarokun/ChatWave.git`
+2. Wenn du noch kein Node hast installiere node von hier.
+
+   `https://nodejs.org/en`
+3. Öffne das Projekt entweder im CMD oder in VsCode.
+4. Installiere die Dependencies.
+
+   `npm install`
+5. Starte den Server.
+
+   `nodemon index.js`
+
+   oder
+
+   `node index.js`
+6. Greife auf dem Browser auf den Server zu.
+
+   `http://localhost:8080`
+
+   Für andere Benutzer
+
+   `http://deine-ip:8080`
+
+   Deine IP kannst du aus dem CMD aus mit
+
+   `ipconfig`
+
+   herausfinden.
 
 # Beschreibung der wichtigsten Komponenten
 
