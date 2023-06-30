@@ -367,7 +367,7 @@ app.post('/registration', async (req, res) => {
   }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/', async (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
 
@@ -391,7 +391,13 @@ app.post('/login', async (req, res) => {
     res.cookie('token', token, { httpOnly: false });
     res.redirect('/home');
   } else {
-    res.sendStatus(401);
+    const script = `
+        <script>
+          alert("Invalid credentials. Please try again.");
+          window.location.href = "/";
+        </script>
+      `;
+      res.send(script);
   }
   }
 });

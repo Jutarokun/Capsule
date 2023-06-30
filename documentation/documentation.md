@@ -148,6 +148,9 @@ Heute habe ich verschiedenste Dinge gemacht, wie z.B. Bug fixing aber ich habe h
 
 Heute habe ich ein paar Dinge gemacht. Ich habe aber im generellen weniger Programmiert. Ich habe hauptsächlich an meiner Dokumentation und meinem Testprotokoll gearbeitet. Als ich dann am Testen war, vielen mir ab und zu noch ein paar Bugs auf aber als ich diese gefixed habe lief mein Programm schon besser. Es ist nicht perfekt aber das muss es ja auch nicht sein. Ansonsten könnte man von aussen denken, dass der Tag relativ uninteressant war, weil ich ja hauptsächlich am schreiben und testen war aber ich fand ihn doch durchaus spannend. Denn dies ist schliesslich auch ein Teil unseres Berufes und darum fand ich ihn doch noch relativ spannend. Aber es gibt nicht sehr vieles zu erzählen, ausser das der Tag an sich okay war und er lief gut.
 
+## Tag 11 / 29.06.2023
+
+
 # Beschreibung der API Endpoints
 
 ## /
