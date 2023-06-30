@@ -109,9 +109,12 @@ io.on('connection', (socket) => {
   socket.on('showAllCapsules', async (data) => {
     const token = data.token;
     const username = await getUsernameFromToken(token);
-    const list = await db.getRoomsByUsername(username);
+    const userID = await db.getUserIdByName(username);
+    const list = await db.getRoomsByUsername(username, userID);
+    const userAdminList = await db.getUserRoomsAdmin(userID);
     console.log('list: ' + list);
-    socket.emit('returnShowAllCapsules', { list });
+    console.log('userAdminList: ' + userAdminList);
+    socket.emit('returnShowAllCapsules', { list, userAdminList });
   });
 
   socket.on('searchAll', async (data) => {

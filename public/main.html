@@ -19,6 +19,9 @@
     <h1>Here are your capsules</h1>
   </header>
   <main>
+    <h2>Your own Capsules</h2>
+    <div id="ownCapsules" class="container"></div>
+    <h2>Foreign Capsules</h2>
     <div id="capsulesContainer" class="container"></div>
   </main>
   <script>
@@ -57,9 +60,11 @@
 
     socket.on('returnShowAllCapsules', (data) => {
       const list = data.list;
+      const userAdminList = data.userAdminList;
       console.log('user List: ', list);
+      console.log('userAdminList: ' + userAdminList);
 
-      const capsulesContainer = document.getElementById('capsulesContainer');
+      let capsulesContainer = document.getElementById('capsulesContainer');
       capsulesContainer.innerHTML = '';
 
       list.forEach(capsule => {
@@ -83,6 +88,14 @@
         })
         capsulesContainer.appendChild(capsuleBox);
       });
+
+      capsulesContainer = document.getElementById('ownCapsules');
+      capsulesContainer.innerHTML = '';
+
+      userAdminList.forEach(capsule => {
+        const capsuleBox = createCapsuleBox(capsule);
+        capsulesContainer.appendChild(capsuleBox);
+      })
     });
 
     function createCapsuleBox(capsule) {

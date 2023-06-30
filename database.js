@@ -257,8 +257,8 @@ function insertUser(username, email, hashedPassword) {
   async function getRoomsByUsername(username) {
     let userID = await getUserIdByName(username);
     return new Promise((resolve, reject) => {
-      const query = 'SELECT * FROM user_room INNER JOIN room ON user_room.room_id = room.id WHERE user_room.user_id = ?';
-      db.all(query, [userID], (err, rows) => {
+      const query = 'SELECT * FROM user_room INNER JOIN room ON user_room.room_id = room.id WHERE user_room.user_id = ? AND NOT room.user_id = ?';
+      db.all(query, [userID, userID], (err, rows) => {
         if (err) {
           reject(err);
         } else {
@@ -761,6 +761,19 @@ async function getRoomFromUser(userID) {
     })
   }
 
+  async function getUserRoomsAdmin(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT * FROM room WHERE user_id = ?`;
+      db.all(query, [userID], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      })
+    })
+  }
+
 // Exports the fucntions
 module.exports = {
   register_user,
@@ -797,5 +810,6 @@ module.exports = {
   insertIntoUserSocketid,
   getSocketID,
   getUserRoomMoment,
-  getCapsuleName
+  getCapsuleName,
+  getUserRoomsAdmin
 };
