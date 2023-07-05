@@ -171,6 +171,9 @@ io.on('connection', (socket) => {
   socket.on('sendSocketID', async (data) => {
     const { socketID, token } = data;
     let isValid = await functionAuthenticateToken(token, key);
+    if (token === null) {
+      return;
+    }
     if (token && isValid == false) {
       return;
     }
