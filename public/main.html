@@ -134,8 +134,9 @@
       socket.emit('showAllCapsules', { token });
     })
 
-    socket.on('refreshPage', () => {
+    socket.on('refreshPage', (data) => {
       const token = getTokenFromCookie(document.cookie);
+      alert(`You got banned from server: ${data.roomName}`);
       socket.emit('showAllCapsules', { token });
     })
 

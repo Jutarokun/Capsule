@@ -90,12 +90,17 @@ io.on('connection', (socket) => {
   })
 
   socket.on('banUser', async (data) => {
+    let currentRoomName = null;
     const username = data.username;
     const roomName = data.roomName;
     const roomID = await db.getCapsuleID(roomName);
     const userID = await db.getUserIdByName(username);
     const currentRoomID = await db.getUserRoomMoment(userID);
-    const currentRoomName = await db.getCapsuleName(currentRoomID);
+    if (currentRoomID === null) {
+      currentRoomName = null;
+    } else {
+    currentRoomName = await db.getCapsuleName(currentRoomID);
+    }
     console.log('currentRoomName: ' + currentRoomName);
     if (currentRoomID === roomID) {
       await db.deleteFromUserRoom(userID);

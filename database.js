@@ -742,7 +742,7 @@ async function getRoomFromUser(userID) {
         if (err) {
           reject(err);
         } else {
-          resolve(row.room_id);
+          resolve(row ? row.room_id : null);
         }
       })
     })
